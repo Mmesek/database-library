@@ -1,19 +1,10 @@
-from datetime import datetime
 from decimal import Decimal
-from ..utils.mixins import Name, URL
+from ..utils.mixins import Name, URL, Price, Timestamp
 
 
-class Item(Name, table=True):
-    date: datetime
-    """Date when this item was obtained"""
-    price: Decimal
-    """Cost of this item"""
+class Item(Timestamp, Price, Name, table=True):
+    pass
 
-
-class Wishlist(URL, Name, table=True):
-    date: datetime
-    """Date when this item was added to wishlist"""
+class Wishlist(Timestamp, Price, URL, Name, table=True):
     lowest_price: Decimal
     """Lowest price of this item"""
-    current_price: Decimal
-    """Last fetched price of this item"""

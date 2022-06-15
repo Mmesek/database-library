@@ -5,7 +5,7 @@ from datetime import datetime
 from decimal import Decimal
 from sqlmodel import Field, Relationship
 
-from ..utils.mixins import Name, ID, Timestamp
+from ..utils.mixins import Name, ID, Timestamp, Price as MixinPrice
 from ..games.models import Game
 
 TODAY = datetime.datetime.now()
@@ -43,17 +43,13 @@ class Game(Game):
         return [key.bundle for key in self.keys if not key.used]
 
 
-class Bundle(Name, table=True):
+class Bundle(MixinPrice, Name, table=True):
     """Bundle metadata"""
 
     keys: list["Key"] = Relationship(back_populates="bundle")
     """Keys in this Bundle"""
     date: datetime
     """Date bundle was purchased"""
-    price: Decimal
-    """Price bundle was purchased for"""
-    currency: str
-    """Currency in which bundle was purchased"""
 
     def use_key(self, game: str) -> str:
         """Use key, returns key"""
@@ -91,19 +87,17 @@ class Key(ID, table=True):
         return self.key
 
 
-class Offer(Timestamp, ID, table=True):
+class Offer(MixinPrice, Timestamp, ID, table=True):
     """Offer for this key"""
 
     key_id: int
-    price: Decimal
-    """Price for the key"""
     active: bool
 
 
-class Price(Timestamp, ID, table=True):
-    game_id: int = Field(primary_key=True, foreign_key="game.id")
-    price: Decimal
+class Price(MixinPrice, Timestamp, table=True):
     """Last fetched price for the game"""
+
+    game_id: int = Field(primary_key=True, foreign_key="game.id")
 
 
 def add_bundle(session, name, prc, currency, games):

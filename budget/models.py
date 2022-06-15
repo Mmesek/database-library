@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from sqlmodel import Relationship, Field
 
-from ..utils.mixins import *
+from ..utils.mixins import Name, Timestamp, ID
 
 
 class Wallet(Name, table=True):
@@ -35,19 +35,19 @@ class Wallet(Name, table=True):
         return self.total_received - self.total_sent
 
 
-class Transaction(ID, table=True):
-    date: datetime
-    """Date of operation"""
+class Transaction(Timestamp, ID, table=True):
     amount: Decimal
     """Amount transfered"""
     currency: str
     """Currency transfered"""
     description: str
     """Operation's description"""
+
     sender_id: int = Field(foreign_key="wallet.id")
     """Wallet's source. Outgoing"""
     recipent_id: int = Field(foreign_key="wallet.id")
     """Wallet's destination. Incoming"""
+
     sender: Wallet
     """Sender's wallet"""
     recipent: Wallet
