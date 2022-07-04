@@ -15,6 +15,7 @@ class Artist(Name, table=True):
     songs: list["Song"] = Relationship(back_populates="artists", link_model=Artist_Songs)
     """Songs featuring this artist"""
     added_date: datetime
+    """Date artist was \"discovered\""""
 
 
 class Song(ID, table=True):
