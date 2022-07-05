@@ -9,7 +9,7 @@ class Game(Name, table=True):
     """List of achievements unlocked in game"""
     badges: list["Badge"] = Relationship(back_populates="game")
     """List of badges crafted for game"""
-    sessions: list["Session"] = Relationship(back_populates="game")
+    sessions: list = Relationship(back_populates="game")
     """List of game sessions in game"""
 
     @property
@@ -30,12 +30,3 @@ class Badge(ID, table=True):
     """Game ID this badge is for"""
     unlocked_at: datetime
     """Time when badge was crafted"""
-
-
-class Session(ID, table=True):
-    game_id: int = Field(foreign_key=Game.id, primary_key=True)
-    """Game ID this session is for"""
-    timestamp: datetime
-    """Start of game session"""
-    duration: float
-    """Duration of game session"""
