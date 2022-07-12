@@ -1,100 +1,76 @@
-from typing import List, Optional
-from collections import Counter
+from typing import List
 from decimal import Decimal
 
-from sqlmodel import Relationship, Field
+from sqlmodel import Relationship, Field, SQLModel
 
 from ..utils.mixins import Name, Timestamp, ID
 
 
 class Wallet(Name, table=True):
-    outgoing: List["Transaction"] = Relationship(
-        back_populates="sender", sa_relationship_kwargs={"foreign_keys": "Transaction.sender_id"}
-    )
-    """List of all outgoing transactions"""
-    incoming: List["Transaction"] = Relationship(
-        back_populates="recipent", sa_relationship_kwargs={"foreign_keys": "Transaction.recipent_id"}
-    )
-    """List of all incoming transactions"""
-
-    @property
-    def total_sent(self) -> Counter:
-        """Total outgoing amounts by currency"""
-        c = Counter()
-        for t in self.outgoing:
-            c.update({t.currency: t.amount})
-        return c
-
-    @property
-    def total_received(self) -> Counter:
-        """Total incoming amounts by currency"""
-        c = Counter()
-        for t in self.incoming:
-            c.update({t.currency: t.amount})
-        return c
+    currency: str = Field(max_length=3)
+    """Wallet's Currency in Alpha 2 (Currency Code) notation (3 letters)"""
+    transactions: List["Transaction"] = Relationship(back_populates="wallet")
+    """List of all transactions"""
+    operations: List["Operation"] = Relationship(link_model="Transaction")  # NOTE: No clue if it'll work!
+    """List of all operations associated with this Wallet"""
 
     @property
     def balance(self) -> Decimal:
-        """Remaining Balance (Received minus Sent)"""
-        return self.total_received - self.total_sent
-
-    def add(self, value: float, currency: str, description: str) -> Decimal:
-        """Add funds to Wallet"""
-        self.incoming.append(Transaction(amount=value, currency=currency, description=description))
-        return self.balance.get(currency, 0)
+        """Current Balance"""
+        return sum([i.amount for i in self.transactions])
 
     def transfer(
-        self, amount: float, currency: str, description: str, recipent_id: int = None, recipent: "Wallet" = None
-    ) -> Decimal:
+        self, amount: float, description: str = None, target: "Wallet" = None, operation: "Operation" = None
+    ) -> "Operation":
         """
         Transfer funds to another Wallet if there are enough funds in current Wallet
 
         Parameters
         ----------
         amount:
-            Amount to transfer out of this wallet
-        currency:
-            Currency to transfer. Requires this currency being present on this wallet
+            Amount to transfer out of this wallet. Raises ValueError on insufficent funds
         description:
             Description of this transaction
-        recipent_id:
-            Target's Wallet ID. Leave empty when using `recipent`
-        recipent:
-            Target's Wallet. Leave empty when using `recipent_id`
+        target:
+            Target's Wallet.
+        operation:
+            Operation new Transaction should be attachted to. Otherwise creates new Operation
         """
-        if self.balance.get(currency, 0) >= amount:
-            self.outgoing.append(
-                Transaction(
-                    amount=amount,
-                    currency=currency,
-                    description=description,
-                    recipent_id=recipent_id,
-                    recipent=recipent,
-                )
-            )
-        else:
-            print("Not enough funds to transfer")
-        return self.balance.get(currency, 0)
+        if self.balance < amount:
+            raise ValueError("Current wallet doesn't have enough funds to transfer out")
+        elif amount < 0 and target.balance < abs(amount):
+            raise ValueError("Target's wallet doesn't have enough funds to transfer in")
+
+        if not operation:
+            operation = Operation(description=description)
+        self.transactions.append(Transaction(amount=-amount, operation=operation))
+        if target:
+            target.transactions.append(Transaction(amount=amount, operation=operation))
+        return operation
 
 
-class Transaction(Timestamp, ID, table=True):
-    amount: Decimal
-    """Amount transfered"""
-    currency: str = Field(max_length=3)
-    """Currency transfered"""
+class Operation(Timestamp, ID, table=True):
     description: str
     """Operation's description"""
+    transactions: List["Transaction"] = Relationship(back_populates="transaction")
+    """List of Operation details"""
 
-    sender_id: Optional[int] = Field(foreign_key="wallet.id")
-    """Wallet's source. Outgoing"""
-    recipent_id: Optional[int] = Field(foreign_key="wallet.id")
-    """Wallet's destination. Incoming"""
+    @property
+    def amount(self) -> Decimal:
+        """Amount transfered in this operation"""
+        # NOTE: If wallet's currency differs, it's not reflected here. TODO
+        return sum([i.amount for i in self.transactions if i.amount > 0])
 
-    sender: Optional[Wallet] = Relationship(
-        back_populates="outgoing", sa_relationship_kwargs={"foreign_keys": "Transaction.sender_id"}
-    )
-    """Sender's wallet"""
-    recipent: Optional[Wallet] = Relationship(
-        back_populates="incoming", sa_relationship_kwargs={"foreign_keys": "Transaction.recipent_id"}
-    )
-    """Recipent's Wallet"""
+
+class Transaction(SQLModel, table=True):
+    operation_id: int = Field(foreign_key="transaction.id")
+    """Operation ID this Transaction is for"""
+    operation: Operation = Relationship(back_populates="transactions")
+    """Operation this Transaction is for"""
+    amount: Decimal
+    """Amount transfered"""
+
+    wallet_id: int = Field(foreign_key="wallet.id")
+    """Wallet's ID"""
+    wallet: Wallet = Relationship(back_populates="transactions")
+    """Affected Wallet"""
