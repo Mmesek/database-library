@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from decimal import Decimal
 
 from sqlmodel import Relationship, Field, SQLModel
@@ -11,8 +11,24 @@ class Wallet(Name, table=True):
     """Wallet's Currency in Alpha 2 (Currency Code) notation (3 letters)"""
     transactions: List["Transaction"] = Relationship(back_populates="wallet")
     """List of all transactions"""
-    operations: List["Operation"] = Relationship(link_model="Transaction")  # NOTE: No clue if it'll work!
-    """List of all operations associated with this Wallet"""
+    # operations: List["Operation"] = Relationship(link_model=Transaction)  # NOTE: No clue if it'll work!
+    # """List of all operations associated with this Wallet"""
+    outgoing: List["Operation"] = Relationship(
+        back_populates="sender", sa_relationship_kwargs={"foreign_keys": "Operation.sender_id"}
+    )
+    """List of all outgoing transactions"""
+    incoming: List["Operation"] = Relationship(
+        back_populates="recipent", sa_relationship_kwargs={"foreign_keys": "Operation.recipent_id"}
+    )
+    """List of all incoming transactions"""
+
+    @property
+    def total_sent(self) -> Decimal:
+        return sum([i.amount for i in self.transactions if i.amount < 0])
+
+    @property
+    def total_received(self) -> Decimal:
+        return sum([i.amount for i in self.transactions if i.amount > 0])
 
     @property
     def balance(self) -> Decimal:
@@ -21,7 +37,7 @@ class Wallet(Name, table=True):
 
     def transfer(
         self, amount: float, description: str = None, target: "Wallet" = None, operation: "Operation" = None
-    ) -> "Operation":
+    ) -> Decimal:
         """
         Transfer funds to another Wallet if there are enough funds in current Wallet
 
@@ -37,23 +53,40 @@ class Wallet(Name, table=True):
             Operation new Transaction should be attachted to. Otherwise creates new Operation
         """
         if self.balance < amount:
-            raise ValueError("Current wallet doesn't have enough funds to transfer out")
-        elif amount < 0 and target.balance < abs(amount):
-            raise ValueError("Target's wallet doesn't have enough funds to transfer in")
+            raise ValueError("Current wallet doesn't have enough funds to transfer out", self.balance, amount)
+        elif amount < 0 and target and target.balance < abs(amount):
+            raise ValueError("Target's wallet doesn't have enough funds to transfer in", target.balance, amount)
 
         if not operation:
-            operation = Operation(description=description)
-        self.transactions.append(Transaction(amount=-amount, operation=operation))
+            operation = Operation(description=description, sender=self, recipent=target)
+            self.outgoing.append(operation)
+
+        operation.transactions.append(Transaction(amount=-amount, wallet=self))
         if target:
-            target.transactions.append(Transaction(amount=amount, operation=operation))
-        return operation
+            operation.transactions.append(Transaction(amount=amount, wallet=target))
+
+        return self.balance
 
 
 class Operation(Timestamp, ID, table=True):
     description: str
     """Operation's description"""
-    transactions: List["Transaction"] = Relationship(back_populates="transaction")
+    transactions: List["Transaction"] = Relationship(back_populates="operation")
     """List of Operation details"""
+
+    sender_id: Optional[int] = Field(foreign_key="wallet.id")
+    """Source Wallet. Outgoing"""
+    recipent_id: Optional[int] = Field(foreign_key="wallet.id")
+    """Destination Wallet. Incoming"""
+
+    sender: Optional[Wallet] = Relationship(
+        back_populates="outgoing", sa_relationship_kwargs={"foreign_keys": "Operation.sender_id"}
+    )
+    """Sender's wallet"""
+    recipent: Optional[Wallet] = Relationship(
+        back_populates="incoming", sa_relationship_kwargs={"foreign_keys": "Operation.recipent_id"}
+    )
+    """Recipent's Wallet"""
 
     @property
     def amount(self) -> Decimal:
@@ -63,14 +96,14 @@ class Operation(Timestamp, ID, table=True):
 
 
 class Transaction(SQLModel, table=True):
-    operation_id: int = Field(foreign_key="transaction.id")
+    operation_id: int = Field(foreign_key="operation.id", primary_key=True)
     """Operation ID this Transaction is for"""
     operation: Operation = Relationship(back_populates="transactions")
     """Operation this Transaction is for"""
     amount: Decimal
     """Amount transfered"""
 
-    wallet_id: int = Field(foreign_key="wallet.id")
+    wallet_id: int = Field(foreign_key="wallet.id", nullable=True, primary_key=True)
     """Wallet's ID"""
     wallet: Wallet = Relationship(back_populates="transactions")
     """Affected Wallet"""
