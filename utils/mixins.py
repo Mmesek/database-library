@@ -7,7 +7,7 @@ from sqlmodel import SQLModel, Field
 
 class ID(SQLModel):
     # 0
-    id: int = Field(primary_key=True)
+    id: int = Field(default=None, primary_key=True)
 
 
 class Name(ID, SQLModel):
