@@ -67,6 +67,24 @@ class Wallet(Name, table=True):
 
         return self.balance
 
+    def history(self):
+        for i in sorted(self.outgoing + self.incoming, key=lambda x: x.timestamp):
+            print(
+                i.timestamp,
+                i.amount,
+                i.sender.name if i.sender else None,
+                i.recipent.name if i.recipent else None,
+                i.description,
+            )
+
+    def sent(self):
+        for i in self.outgoing:
+            print(i.timestamp, i.amount, i.recipent.name if i.recipent else None, i.description)
+
+    def received(self):
+        for i in self.incoming:
+            print(i.timestamp, i.amount, i.sender.name if i.sender else None, i.description)
+
 
 class Operation(Timestamp, ID, table=True):
     description: str
