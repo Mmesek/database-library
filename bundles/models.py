@@ -2,7 +2,6 @@ import calendar
 
 from datetime import datetime
 
-from decimal import Decimal
 from sqlmodel import Field, Relationship
 
 from ..utils.mixins import Name, ID, Timestamp, Price as MixinPrice
@@ -60,7 +59,7 @@ class Bundle(MixinPrice, Name, table=True):
     @property
     def unused_keys(self) -> list[str]:
         """Shows unused keys"""
-        return [key.game.name for key in self.keys if not key.used]
+        return [key.game.name for key in self.keys if not key.used_date]
 
     @property
     def games(self) -> list[Game]:
