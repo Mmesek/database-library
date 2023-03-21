@@ -47,7 +47,7 @@ class Game(Name, Base):
 
     @property
     def unused_keys(self):
-        return [key.bundle for key in self.keys if not key.used]
+        return [key.bundle for key in self.keys if not key.used_date]
 
 
 class Bundle(MixinPrice, Name, Base):
@@ -78,10 +78,10 @@ class Bundle(MixinPrice, Name, Base):
 class Key(ID, Base):
     bundle_id: Mapped[int] = Field(foreign_key="Bundle.id")
     """Bundle ID which this key is associated with"""
-    bundle: Bundle = Relationship(back_populates="Bundle.keys")
+    bundle: Bundle = Relationship("Bundle", back_populates="keys")
     game_id: Mapped[int] = Field(foreign_key="Game.id")
     """Game this key unlocks"""
-    game: Game = Relationship(back_populates="keys")
+    game: Game = Relationship("Game", back_populates="keys")
     key: Mapped[str] = Field(nullable=True)
     """Key"""
     used_date: Mapped[datetime] = Field(nullable=True)
@@ -125,6 +125,7 @@ def add_bundle(session, name, prc, currency, games):
     else:
         date = NOW
     bundle = Bundle(
+        id=None,
         name=name,
         price=prc,
         currency=currency,
