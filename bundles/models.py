@@ -91,6 +91,10 @@ class Key(ID, Base):
     platform: Mapped[str] = Field(default="Steam", nullable=False)
     """Platform this key is for"""
 
+    def __init__(self, game_id: int, platform: str) -> None:
+        self.game_id = game_id
+        self.platform = platform
+
     def use(self) -> str:
         self.used_date = datetime.now()
         return self.key
