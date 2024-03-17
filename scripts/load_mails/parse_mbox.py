@@ -37,7 +37,8 @@ def parse_mail(msg: dict[str, str]) -> tuple[datetime.datetime, str, str]:
 if __name__ == "__main__":
     msgs = []
     for msg in mbox(INBOX).itervalues():
-        msgs.append(parse_mail(msg))
+        if mail := parse_mail(msg):
+            msgs.append(mail)
 
     with open(OUTPUT, "w", newline="", encoding="utf-8") as file:
         f = csv.writer(file)
