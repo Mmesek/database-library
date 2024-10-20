@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 PATH = Path("Journal/Journal")
-OUTPUT = Path("Journal/Output")
+OUTPUT = Path("Journal/Daily")
 
 PATTERN = re.compile(r"(\d+):?(\d+)? ?- ?(\d+):?(\d+)?")
 HOUR = re.compile(r"(\d\d):([!@#$%^0-9]|\d+)")
@@ -37,7 +37,7 @@ def fmt(dt):
 
 
 def write_missing_header():
-    return ["| Start | End | T | Description", "| - | - | - | - |"]
+    return ["| Start | End | T | Description |", "| - | - | - | - |"]
 
 
 class Parser:
@@ -69,11 +69,11 @@ class Parser:
                 if len(s) == 3:
                     s = [s[0], s[1], "", s[2]]
                 line = " | ".join(s)
-            if line.endswith("| Description"):
-                line += " |"
-            if line.endswith("| -"):
-                line += " |"
             line = "| " + line
+        if line.endswith("| Description"):
+            line += " |"
+        if line.endswith("| -"):
+            line += " |"
         return line
 
     def parse_metadata(self, line: str):
