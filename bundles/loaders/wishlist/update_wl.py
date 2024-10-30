@@ -1,5 +1,5 @@
 from decimal import Decimal
-
+from datetime import datetime, timezone
 import httpx
 from bs4 import BeautifulSoup
 from howlongtobeatpy import HowLongToBeat, HowLongToBeatEntry
@@ -42,7 +42,9 @@ games = list(session.execute(text(r'SELECT DISTINCT game FROM "WishlistedGames"'
 for game in games:
     if _game := session.execute(select(Game).where(Game.name == game)).scalar():
         wl = session.execute(select(Wishlist).where(Wishlist.game_id == _game.id)).scalar()
-        prc = Price(game_id=_game.id, price=Decimal(get_price(game)), currency="PLN", timestamp=None)
+        prc = Price(
+            game_id=_game.id, price=Decimal(get_price(game)), currency="PLN", timestamp=datetime.now(timezone.utc)
+        )
         session.merge(prc)
         if not wl.hltb_story:
             wl.hltb_story, wl.hltb_total = get_hltb(game)
