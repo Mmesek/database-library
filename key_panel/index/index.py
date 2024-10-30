@@ -10,9 +10,6 @@ class GameList(rx.State):
     key: str
     key_id: str
 
-    def list_(self):
-        self.games.append(self.game)
-
     def search(self, text: str):
         self.games = []
         self.game = text
@@ -55,11 +52,7 @@ def game_list(title: str, bundle: str, key_id: int):
                 style={"maxWidth": "20em", "minWidth": "20em", "align": "center"},
             ),
             rx.input(name="key_id", value=key_id, type="hidden"),
-            rx.input(
-                required=True,
-                name="key",
-                on_change=GameList.set_key,
-            ),
+            rx.input(required=True, name="key", on_change=GameList.set_key),
             rx.input(
                 value=0.5,
                 name="price",
