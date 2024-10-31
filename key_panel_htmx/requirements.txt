@@ -1,0 +1,4 @@
+fasthtml
+fastsql
+sqlalchemy
+pg8000
