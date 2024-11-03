@@ -1,19 +1,33 @@
+import re
 from fasthtml.common import (
     fast_app,
     Div,
-    P,
     serve,
     Button,
     Input,
     Form,
     Select,
     Option,
+    Style,
+    A,
+    picolink,
 )
 from fastsql import Database
 import sqlalchemy
 
-app, rt = fast_app()
+app, rt = fast_app(
+    hdrs=(
+        picolink,
+        Style(
+            'button[type="submit"], input:not([type="checkbox"], [type="radio"]), select, textarea { width: auto;}'
+        ),
+    )
+)
 db = Database("postgresql+pg8000://postgres:postgres@r4/Keys")
+
+NAME = re.compile(
+    r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d\d\d\d)"
+)
 
 
 @app.get
@@ -30,21 +44,57 @@ def index():
     )
 
 
+def get_href(bundle_name: str):
+    groups = NAME.search(bundle_name)
+    if groups and "choice" in bundle_name.lower():
+        href = (
+            f"https://www.humblebundle.com/membership/{groups[1].lower()}-{groups[2]}",
+        )
+    elif "humble" in bundle_name.lower():
+        href = "https://www.humblebundle.com/home/purchases"
+    else:
+        href = "https://www.fanatical.com/en/product-library"
+    return A(bundle_name, href=href, target="_blank", rel="noopener noreferrer")
+
+
+def make_game_href(game: str, bundle_href: str):
+    return A(
+        game,
+        href=bundle_href + "/" + game.lower().replace(" ", "").replace("'", ""),
+        target="_blank",
+        rel="noopener noreferrer",
+    )
+
+
 @app.get
 def search(title: str):
-    _games = db.execute(
-        sqlalchemy.text(
-            'SELECT id, bundle, game FROM "BundledGames" WHERE "game" ILIKE :title LIMIT 10'
-        ).bindparams(title=f"%{title}%")
-    ).all()
+    if title:
+        _games = db.execute(
+            sqlalchemy.text(
+                'SELECT id, bundle, game, price FROM "BundledGames" WHERE "game" ILIKE :title LIMIT 10'
+            ).bindparams(title=f"%{title}%")
+        ).all()
+    else:
+        _games = db.execute(
+            sqlalchemy.text(
+                'SELECT id, bundle, game, price FROM "BundledGames" ORDER BY date DESC LIMIT 10'
+            )
+        )
     return Div(
         *[
             Div(
                 Form(
-                    P(game[2]),
-                    P(game[1]),
-                    Input(placeholder="Key", id="key"),
-                    Input(placeholder="Price", value=0.5, id="price"),
+                    Div(make_game_href(game[2], get_href(game[1]).get("href")))
+                    if "choice" in game[1].lower()
+                    else game[2],
+                    Div(get_href(game[1])),
+                    Input(placeholder="Key", id="key", style="width: 20em"),
+                    Input(
+                        placeholder="Price",
+                        value=game[3] or 0.5,
+                        id="price",
+                        style="width: 5em",
+                    ),
                     Select(
                         Option("PLN"),
                         Option("EUR"),
@@ -78,15 +128,17 @@ def redeem(form: dict):
             'UPDATE "Key" SET used_date = now(), key = :key WHERE "Key".id = :key_id'
         ).bindparams(key=form["key"], key_id=int(form["id"]))
     )
-    db.execute(
-        sqlalchemy.text(
-            'INSERT INTO "Transaction" (key_id, price, currency) VALUES (:key_id, :price, :currency)'
-        ).bindparams(
-            key_id=int(form["id"]),
-            price=float(form["price"]),
-            currency=form["currency"],
+    if form["price"]:
+        db.execute(
+            sqlalchemy.text(
+                'INSERT INTO "Transaction" (key_id, price, currency) VALUES (:key_id, :price, :currency)'
+            ).bindparams(
+                key_id=int(form["id"]),
+                price=float(form["price"]),
+                currency=form["currency"],
+            )
         )
-    )
+    db.conn.commit()
     return "Hello!"
 
 
