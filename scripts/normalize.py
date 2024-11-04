@@ -4,6 +4,8 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from mlib.utils import grouper
+
 PATH = Path("Journal/Journal")
 OUTPUT = Path("Journal/Daily")
 
@@ -147,12 +149,24 @@ class Parser:
 
         if not self._intervals:
             print("Failed to detect intervals at", self.dt.date())
+        else:
+            self.group_intervals()
         self.lines.append(self._intervals)
         self.lines.append(self._errata)
         self.lines.append("")
         if self._header:
             self.lines.extend(write_missing_header())
         self.metadata = True
+
+    def group_intervals(self):
+        intervals = self._intervals.split("-")
+        boilerplate, first = intervals[0].split(" ")
+        intervals = [first] + [i for i in intervals[1:] if i]
+
+        intervals = list(grouper(intervals, 2, ""))
+        self._intervals = (
+            boilerplate + " " + " ".join(["-".join(interval) for interval in intervals])
+        )
 
     def process(self, file_lines: list[str]):
         for line in [i for i in file_lines if i]:
