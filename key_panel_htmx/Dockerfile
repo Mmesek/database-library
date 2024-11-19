@@ -1,23 +1,21 @@
-FROM python:3.13-slim
+FROM cgr.dev/chainguard/python:latest-dev AS dev
 
-ENV PYTHONUNBUFFERED=1 \
-    PIP_DISABLE_VERSION_CHECK=1 \
-    PIP_NO_CACHE_DIR=1 \
-    DEBIAN_FRONTEND=noninteractive
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONBUFFERED=1
 
-RUN set -ex \
-    && addgroup --gid 50000 python \
-    && adduser --shell /bin/false --disabled-password --uid 50000 --gid 50000 --no-create-home python \
-    && apt-get update \
-    && apt-get upgrade -y \
-    && apt-get clean \
-    && apt-get autoremove \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-COPY requirements.txt requirements.txt
+RUN python -m venv /app/.venv
+COPY requirements.txt ./
+RUN python -m pip --disable-pip-version-check --no-cache-dir install -r requirements.txt
 
-RUN python -m pip --disable-pip-version-check --no-cache-dir install -r requirements.txt \ 
-    && rm -rf requirements.txt
+FROM cgr.dev/chainguard/python:latest
+
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONBUFFERED=1
+WORKDIR /app
+
+COPY --from=dev /app/.venv /app/.venv
 
 COPY ["__main__.py", "/app/__main__.py"]
 
