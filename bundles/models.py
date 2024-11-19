@@ -90,6 +90,8 @@ class Key(ID, Base):
     """Date when this key expires, if at all"""
     platform: Mapped[str] = Field(default="Steam", nullable=False)
     """Platform this key is for"""
+    locks: Mapped[str] = Field(nullable=True)
+    """List of region restrictions, if any"""
 
     def __init__(self, game_id: int, platform: str) -> None:
         self.game_id = game_id

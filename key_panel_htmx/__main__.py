@@ -88,7 +88,12 @@ def search(title: str):
                     if "choice" in game[1].lower()
                     else game[2],
                     Div(get_href(game[1])),
-                    Input(placeholder="Key", id="key", style="width: 20em"),
+                    Input(hidden=True, id="search", value=title),
+                    Input(
+                        placeholder="Key",
+                        id="key",
+                        style="width: 20em",
+                    ),
                     Input(
                         placeholder="Price",
                         value=game[3] or 0.5,
@@ -101,6 +106,7 @@ def search(title: str):
                         Option("USD"),
                         id="currency",
                     ),
+                    Input(placeholder="Locks", id="locks", style="width: 5em"),
                     Button(
                         "Redeem",
                         id="id",
@@ -109,6 +115,7 @@ def search(title: str):
                         type="submit",
                     ),
                     hx_post="/redeem",
+                    hx_swap="outerHTML",
                 ),
                 cls="box",
             )
@@ -125,8 +132,12 @@ def redeem(form: dict):
         return "Key is missing!"
     db.execute(
         sqlalchemy.text(
-            'UPDATE "Key" SET used_date = now(), key = :key WHERE "Key".id = :key_id'
-        ).bindparams(key=form["key"], key_id=int(form["id"]))
+            'UPDATE "Key" SET used_date = now(), key = :key, locks = :locks WHERE "Key".id = :key_id'
+        ).bindparams(
+            key=form["key"],
+            locks=form["locks"],
+            key_id=int(form["id"]),
+        )
     )
     if form["price"]:
         db.execute(
@@ -139,7 +150,7 @@ def redeem(form: dict):
             )
         )
     db.conn.commit()
-    return "Hello!"
+    return "Done"
 
 
 if __name__ == "__main__":
