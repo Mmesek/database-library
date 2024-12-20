@@ -26,23 +26,28 @@ LINEAR_DEDUCTIBLE_PER_YEAR = 10200
 
 
 class Contrahent(Base):
-    id: Mapped[str] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True, init=False)
     """VAT ID - Country Prefix + NIP"""
     name: Mapped[str]
-    nip: Mapped[Optional[str]]
-    regon: Mapped[Optional[str]]
-    address: Mapped[Optional[str]]
-    zip_code: Mapped[Optional[str]]
+    category: Mapped[str] = mapped_column(default=None)
+    nip: Mapped[Optional[str]] = mapped_column(kw_only=True, default=None)
+    regon: Mapped[Optional[str]] = mapped_column(kw_only=True, default=None)
+    address: Mapped[Optional[str]] = mapped_column(kw_only=True, default=None)
+    zip_code: Mapped[Optional[str]] = mapped_column(kw_only=True, default=None)
+    email: Mapped[Optional[str]] = mapped_column(kw_only=True, default=None)
 
 
 class Invoice(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     """Invoice's ID"""
-    contrahent_id: Mapped[str] = mapped_column(ForeignKey("Contrahent.id"))
+    contrahent_id: Mapped[str] = mapped_column(ForeignKey("Contrahent.id"), init=False)
     """Sender of this Invoice"""
     timestamp: Mapped[datetime]
     """When was this invoice created"""
     items: Mapped[list["Invoice_Item"]] = relationship(back_populates="invoice", cascade="all, delete-orphan")
+    paid: Mapped[float | None] = mapped_column(kw_only=True, default=None)
+    currency: Mapped[str] = mapped_column(kw_only=True, default="PLN")
+    contrahent: Mapped[Contrahent] = relationship()
 
 
 class Invoice_Item(Base):
@@ -64,9 +69,17 @@ class Invoice_Item(Base):
     total_netto: Mapped[Decimal]
     total_vat: Mapped[Decimal]
     total_brutto: Mapped[Decimal]
+    currency: Mapped[str]
 
     def __init__(
-        self, item: str, type: str, quantity: int = 1, netto: float = None, vat: float = 23, brutto: float = None
+        self,
+        item: str,
+        type: str,
+        quantity: int = 1,
+        netto: float = None,
+        vat: float = 23,
+        brutto: float = None,
+        currency: str = "PLN",
     ):
         self.item = item
         self.type = type
@@ -83,6 +96,7 @@ class Invoice_Item(Base):
         self.total_netto = self.netto * quantity
         self.total_brutto = self.brutto * quantity
         self.total_vat = round(self.total_brutto - self.total_netto, 2)
+        self.currency = currency
 
     def deductible(self, percent: float = 12):
         """Can only deduce on scale or linear"""
