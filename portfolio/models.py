@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy.orm import Mapped, relationship as Relationship
+from sqlalchemy.orm import Mapped, mapped_column as Column
 
 from mlib.database import ID, Timestamp, Base
 
@@ -19,10 +19,12 @@ class Transaction(ID, Timestamp, Base):
     """Price per 1 asset"""
     currency: Mapped[str]
     """Currency of the transaction"""
-    rate: Mapped[Decimal]
+    rate: Mapped[Decimal] = Column(default=Decimal(1))
     """Exchange rate to rate_currency applicable for this transaction"""
-    rate_currency: Mapped[str]
+    rate_currency: Mapped[str] = Column(default="PLN")
     """Currency which applies it's rate"""
+    note: Mapped[str | None] = Column(nullable=True)
+    """Transaction note"""
 
     @property
     def cost(self):
@@ -33,7 +35,8 @@ class Transaction(ID, Timestamp, Base):
     @property
     def converted(self):
         """Total cost in `rate_currency`"""
-        return self.cost * self.rate
+        value = round(self.cost * self.rate, 2)
+        return -value if self.buying else value
 
     def convert(self, asset: str, quantity: Decimal):
         return Transaction(
