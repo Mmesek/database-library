@@ -23,7 +23,7 @@ class Transaction(ID, Timestamp, Base):
     """Exchange rate to rate_currency applicable for this transaction"""
     rate_currency: Mapped[str] = Column(default="PLN")
     """Currency which applies it's rate"""
-    note: Mapped[str | None] = Column(nullable=True)
+    note: Mapped[str | None] = Column(default=None, nullable=True)
     """Transaction note"""
 
     @property
@@ -49,4 +49,12 @@ class Transaction(ID, Timestamp, Base):
             self.currency,
             self.rate,
             self.rate_currency,
+        )
+
+    def print(self):
+        print(
+            self.timestamp,
+            " BUY" if self.buying else "SELL",
+            f"{self.asset:>8} {abs(self.cost):>6.4} {self.currency}"
+            + (f" -> {abs(self.converted):>6.4} {self.rate_currency}" if self.currency != self.rate_currency else ""),
         )
