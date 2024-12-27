@@ -6,8 +6,8 @@ from pathlib import Path
 
 from mlib.utils import grouper
 
-PATH = Path("Journal/Journal")
-OUTPUT = Path("Journal/Daily")
+PATH = Path("data/Journal")
+OUTPUT = Path("data/Journal/Daily")
 
 PATTERN = re.compile(r"(\d+):?(\d+)? ?- ?(\d+):?(\d+)?")
 HOUR = re.compile(r"(\d\d):([!@#$%^0-9]|\d+)")
@@ -59,9 +59,7 @@ class Parser:
 
     def check_time_format(self, line: str):
         if t := TIME_FMT.match(line):
-            if int(t.group(2)) > 23 or (
-                False if not t.group(3) else int(t.group(3)) > 59
-            ):
+            if int(t.group(2)) > 23 or (False if not t.group(3) else int(t.group(3)) > 59):
                 print("Potential error in hour code:", t.group(0), "at", self.dt.date())
 
     def parse_table_header(self, line: str):
@@ -80,19 +78,13 @@ class Parser:
 
     def parse_metadata(self, line: str):
         if not self._intervals and all(
-            group.isdigit()
-            for group in line.replace("-", " ").replace(":", "").strip().split(" ")
+            group.isdigit() for group in line.replace("-", " ").replace(":", "").strip().split(" ")
         ):
             self._intervals = "Interval: " + line.replace(" ", "-")
             return True
         elif (
             not self._errata
-            and line.strip()
-            .replace("(-", "")
-            .replace(")", "")
-            .replace("-", "")
-            .replace(":", "")
-            .isdigit()
+            and line.strip().replace("(-", "").replace(")", "").replace("-", "").replace(":", "").isdigit()
         ):
             if line.strip().replace("-", "").replace(":", "").isdigit():
                 line = "(-" + line.lstrip("-") + ")"
@@ -113,13 +105,7 @@ class Parser:
         if COLON.search(line):
             line = COLON.sub(r"\1:\2", line)
 
-        line = (
-            line.replace(":!", ":1")
-            .replace(":@", ":2")
-            .replace(":#", ":3")
-            .replace(":$", ":4")
-            .replace(":%", ":5")
-        )
+        line = line.replace(":!", ":1").replace(":@", ":2").replace(":#", ":3").replace(":$", ":4").replace(":%", ":5")
 
         if not DATE.search(line) and not DECIMAL.search(line):
             line = TIME.sub(r"\1\2:\3\4", line)
@@ -164,9 +150,7 @@ class Parser:
         intervals = [first] + [i for i in intervals[1:] if i]
 
         intervals = list(grouper(intervals, 2, ""))
-        self._intervals = (
-            boilerplate + " " + " ".join(["-".join(interval) for interval in intervals])
-        )
+        self._intervals = boilerplate + " " + " ".join(["-".join(interval) for interval in intervals])
 
     def process(self, file_lines: list[str]):
         for line in [i for i in file_lines if i]:
@@ -214,27 +198,17 @@ class ListParser(Parser):
             else:
                 lines = []
                 for point in _sessions:
-                    start = self.dt + timedelta(
-                        hours=int(point[0] or 0), minutes=int(point[1] or 0)
-                    )
-                    end = self.dt + timedelta(
-                        hours=int(point[2] or 0), minutes=int(point[3] or 0)
-                    )
+                    start = self.dt + timedelta(hours=int(point[0] or 0), minutes=int(point[1] or 0))
+                    end = self.dt + timedelta(hours=int(point[2] or 0), minutes=int(point[3] or 0))
 
-                    lines.append(
-                        super().fix_table_row(
-                            f"\n| {fmt(start.time())} | {fmt(end.time())} | | {desc}"
-                        )
-                    )
+                    lines.append(super().fix_table_row(f"\n| {fmt(start.time())} | {fmt(end.time())} | | {desc}"))
                 return lines
         return line
 
 
 def process(path: Path, year: str, month: str, day: str):
     with open(path, "r", newline="", encoding="utf-8") as file:
-        Parser(datetime(int(year), int(month), int(day))).process(
-            file.read().splitlines()
-        )
+        Parser(datetime(int(year), int(month), int(day))).process(file.read().splitlines())
 
 
 def parse(year: str):
@@ -257,9 +231,7 @@ def parse_trip():
 
 def parse_list(year: str):
     for filename in os.listdir(Path(PATH, year)):
-        with open(
-            Path(PATH, year, filename), "r", newline="", encoding="utf-8"
-        ) as file:
+        with open(Path(PATH, year, filename), "r", newline="", encoding="utf-8") as file:
             date = file.name.split(" ")[0].split("\\")[-1]
             lines = []
             for line in [i for i in file.read().splitlines()]:
