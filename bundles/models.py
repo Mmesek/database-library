@@ -1,6 +1,6 @@
 import calendar
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from sqlalchemy.orm import Mapped, relationship as Relationship
@@ -88,14 +88,18 @@ class Key(ID, Base):
     """Date when this key was used, if at all"""
     expire_date: Mapped[datetime] = Field(nullable=True)
     """Date when this key expires, if at all"""
-    platform: Mapped[str] = Field(default="Steam", nullable=False)
-    """Platform this key is for"""
     locks: Mapped[str] = Field(nullable=True)
     """List of region restrictions, if any"""
+    transaction: "Transaction" = Relationship("Transaction", back_populates="key", default=None)
+    platform: Mapped[str] = Field(default="Steam", nullable=False)
+    """Platform this key is for"""
 
-    def __init__(self, game_id: int, platform: str) -> None:
+    def __init__(self, game_id: int, platform: str, expire: str = None) -> None:
         self.game_id = game_id
         self.platform = platform
+        if expire:
+            d, m, y = [int(i) for i in expire.split(".")]
+            self.expire_date = datetime(y, m, d)
 
     def use(self) -> str:
         self.used_date = datetime.now()
@@ -115,6 +119,20 @@ class Price(MixinPrice, Timestamp, Base):
     game_id: Mapped[int] = Field(primary_key=True, foreign_key="Game.id")
 
 
+class Transaction(MixinPrice, Timestamp, Base):
+    key_id: Mapped[int] = Field(primary_key=True, foreign_key="Key.id")
+    """Game this transaction involves"""
+    key: Key = Relationship("Key", back_populates="transaction")
+
+
+class Wishlist(Timestamp, Base):
+    game_id: Mapped[int] = Field(primary_key=True, foreign_key="Game.id")
+    interest_scale: Mapped[int]
+    played_before: Mapped[bool]
+    hltb_total: Mapped[timedelta]
+    hltb_story: Mapped[timedelta]
+
+
 def add_bundle(session, name, prc, currency, games):
     if "Choice" in name:
         year = int(name.split(" ")[-1])
@@ -131,11 +149,10 @@ def add_bundle(session, name, prc, currency, games):
     else:
         date = NOW
     bundle = Bundle(
-        id=None,
         name=name,
         price=prc,
         currency=currency,
-        keys=[Key(game_id=k, platform=v) for k, v in games.items()] if (type(games) is dict) else games,
+        keys=[Key(game_id=k, platform=v[0], expire=v[1]) for k, v in games.items()] if (type(games) is dict) else games,
         date=date,
     )
     session.add(bundle)
