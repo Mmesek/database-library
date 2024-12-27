@@ -1,0 +1,54 @@
+[project]
+name = "Database Models"
+version = "1"
+authors = [{ name = "Mmesek" }]
+description = "Database library"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Mmesek/database-library"
+"Bug Tracker" = "https://github.com/Mmesek/database-library/issues"
+"Source Code" = "https://github.com/Mmesek/database-library"
+
+[project.license]
+file = "LICENSE"
+
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --doctest-report ndiff"
+doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
+testpaths = ["tests"]
+
+[tool.setuptools.dynamic.dependencies]
+file = "requirements.txt"
+
+[project.optional-dependencies]
+tests = ["pytest", "pytest-cov", "pytest-asyncio", "pytest-mock"]
+lint = ["ruff"]
+dev = ["[tests,lint]", "pre-commit"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:"
+]
+
+[tool.ruff]
+line-length = 120
+src = ["."]
+
+[tool.ruff.format]
+docstring-code-format = true
+line-ending = "lf"
+
+[tool.ruff.lint]
+ignore = [
+    "E401", # Multiple imports on one line
+    "F403", # Wildcard import
+    "F405", # Possibly undefined symbol or imported from wildcard
+]
+isort.combine-as-imports = true
+pydocstyle.convention = "numpy"
