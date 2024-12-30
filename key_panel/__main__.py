@@ -1,19 +1,22 @@
-import re, os
+import os
+import re
+
+import sqlalchemy
 from fasthtml.common import (
-    fast_app,
-    Div,
-    serve,
-    Button,
-    Input,
-    Form,
-    Select,
-    Option,
-    Style,
     A,
+    Button,
+    Div,
+    Form,
+    Input,
+    Option,
+    Select,
+    Style,
+    Title,
+    fast_app,
     picolink,
+    serve,
 )
 from fastsql import Database
-import sqlalchemy
 
 app, rt = fast_app(
     hdrs=(
@@ -31,6 +34,7 @@ NAME = re.compile(r"(January|February|March|April|May|June|July|August|September
 @app.get
 def index():
     return Div(
+        Title("Keys"),
         Input(
             name="title",
             hx_get="/search",
@@ -148,4 +152,4 @@ def redeem(form: dict):
 
 
 if __name__ == "__main__":
-    serve("Keys", reload=False)
+    serve(reload=False)
