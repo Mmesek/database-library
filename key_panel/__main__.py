@@ -18,16 +18,12 @@ import sqlalchemy
 app, rt = fast_app(
     hdrs=(
         picolink,
-        Style(
-            'button[type="submit"], input:not([type="checkbox"], [type="radio"]), select, textarea { width: auto;}'
-        ),
+        Style('button[type="submit"], input:not([type="checkbox"], [type="radio"]), select, textarea { width: auto;}'),
     )
 )
 db = Database("postgresql+pg8000://postgres:postgres@r4/Keys")
 
-NAME = re.compile(
-    r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d\d\d\d)"
-)
+NAME = re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d\d\d\d)")
 
 
 @app.get
@@ -47,9 +43,7 @@ def index():
 def get_href(bundle_name: str):
     groups = NAME.search(bundle_name)
     if groups and "choice" in bundle_name.lower():
-        href = (
-            f"https://www.humblebundle.com/membership/{groups[1].lower()}-{groups[2]}",
-        )
+        href = (f"https://www.humblebundle.com/membership/{groups[1].lower()}-{groups[2]}",)
     elif "humble" in bundle_name.lower():
         href = "https://www.humblebundle.com/home/purchases"
     else:
@@ -76,9 +70,7 @@ def search(title: str):
         ).all()
     else:
         _games = db.execute(
-            sqlalchemy.text(
-                'SELECT id, bundle, game, price FROM "BundledGames" ORDER BY date DESC LIMIT 10'
-            )
+            sqlalchemy.text('SELECT id, bundle, game, price FROM "BundledGames" ORDER BY date DESC LIMIT 10')
         )
     return Div(
         *[
@@ -154,4 +146,4 @@ def redeem(form: dict):
 
 
 if __name__ == "__main__":
-    serve()
+    serve("Keys", reload=False)

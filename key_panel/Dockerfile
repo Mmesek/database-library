@@ -17,6 +17,6 @@ WORKDIR /app
 
 COPY --from=dev /app/.venv /app/.venv
 
-COPY ["__main__.py", "/app/__main__.py"]
+COPY ["__main__.py", "favicon.ico", "/app/"]
 
-ENTRYPOINT [ "python", "-m", "app"]
+ENTRYPOINT [ "python", "__main__.py"]
