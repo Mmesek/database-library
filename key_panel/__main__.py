@@ -1,4 +1,4 @@
-import re
+import re, os
 from fasthtml.common import (
     fast_app,
     Div,
@@ -21,7 +21,9 @@ app, rt = fast_app(
         Style('button[type="submit"], input:not([type="checkbox"], [type="radio"]), select, textarea { width: auto;}'),
     )
 )
-db = Database("postgresql+pg8000://postgres:postgres@r4/Keys")
+
+HOST = os.getenv("HOST", "postgres")
+db = Database(f"postgresql+pg8000://postgres:postgres@{HOST}/Keys")
 
 NAME = re.compile(r"(January|February|March|April|May|June|July|August|September|October|November|December) (\d\d\d\d)")
 
