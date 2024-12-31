@@ -54,17 +54,15 @@ class Step_Ingredient(SQLModel, table=True):
 class Ingredient(Name, table=True):
     """Ingredient metadata"""
 
-    steps: list["Step"] = Relationship(
-        back_populates="ingredients", link_model=Step_Ingredient
-    )
+    steps: list["Step"] = Relationship(back_populates="ingredients", link_model=Step_Ingredient)
     """Steps using this Ingredient"""
     category_id: int
     description: str
     aliases: list[Ingredient_Alias]
 
 
-class Recipe(Name, table=True):
-    """Recipe's metadata"""
+class RecipeVariation(ID, table=True):
+    """Variation of a recipe"""
 
     description: str
     """Recipe Description"""
@@ -85,6 +83,17 @@ class Recipe(Name, table=True):
         return sum([s.time for s in self.steps])
 
 
+class Recipe(Name, table=True):
+    """Recipe's metadata"""
+
+    variations: list[RecipeVariation]
+    """Variations of this recipe"""
+
+    default_variation_id: int
+    default_variation: RecipeVariation
+    """Default variation of this recipe"""
+
+
 class Step(SQLModel, table=True):
     """Step of a recipe"""
 
@@ -97,11 +106,9 @@ class Step(SQLModel, table=True):
     time: timedelta
     """Time requred for this step"""
 
-    recipe: Recipe = Relationship(back_populates="steps")
+    recipe: RecipeVariation = Relationship(back_populates="steps")
     """Related Recipe"""
-    ingredients: list[Ingredient] = Relationship(
-        back_populates="steps", link_model=Step_Ingredient
-    )
+    ingredients: list[Ingredient] = Relationship(back_populates="steps", link_model=Step_Ingredient)
     """Ingredients used in this step"""
 
 
