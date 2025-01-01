@@ -4,10 +4,17 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
+try:
+    import dotenv
+
+    dotenv.load_dotenv()
+except ModuleNotFoundError:
+    pass
+
 from mlib.utils import grouper
 from timeseries import general as models
 
-PATH = Path("data/Journal/Daily")
+PATH = Path(os.environ.get("journal", "data/Journal/Daily"))
 FOUND_CATEGORIES = set()
 
 # TODO:
