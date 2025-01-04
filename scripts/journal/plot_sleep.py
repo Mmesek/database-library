@@ -72,6 +72,16 @@ def prepare() -> list[models.Session]:
     return pair_intervals(sleep)
 
 
+def save(paired_sleep: list[models.Session]):
+    import csv
+
+    with open("sleep.csv", "w", newline="", encoding="utf-8") as file:
+        w = csv.writer(file)
+        for sleep in paired_sleep:
+            w.writerow([sleep.start, sleep.end])
+    exit()
+
+
 if __name__ == "__main__":
     paired_sleep = prepare()
     paired_sleep = window(paired_sleep, datetime.datetime(2024, 8, 19), datetime.datetime(2024, 9, 16))
