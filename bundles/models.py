@@ -10,9 +10,6 @@ from utils.mixins import Price as MixinPrice, Field
 # from games.models import Game
 
 
-CALENDAR = calendar.Calendar(firstweekday=calendar.SUNDAY)
-
-
 class Game(Name, Base):
     """Game metadata"""
 
@@ -34,6 +31,17 @@ class Bundle(MixinPrice, Name, Base):
     """Date bundle was purchased"""
     keys: list["Key"] = Relationship("Key", back_populates="bundle")
     """Keys in this Bundle"""
+
+    def add_key(self, session: Session, name: int, platform: int, expire: datetime = None) -> None:
+        stmt = select(Game).where(Game.name == name)
+        stmt = session.execute(stmt)
+
+        if not (game := stmt.scalars().first()):
+            game = Game(name=name, keys=[])
+            session.add(game)
+            session.commit()
+
+        self.keys.append(Key(game.id, platform=platform, expire=expire))
 
     def use_key(self, game: str) -> str:
         """Use key, returns key"""
@@ -71,12 +79,10 @@ class Key(ID, Base):
     platform: Mapped[str] = Field(default="Steam", nullable=False)
     """Platform this key is for"""
 
-    def __init__(self, game_id: int, platform: str, expire: str = None) -> None:
+    def __init__(self, game_id: int, platform: str, expire: datetime = None) -> None:
         self.game_id = game_id
         self.platform = platform
-        if expire:
-            d, m, y = [int(i) for i in expire.split(".")]
-            self.expire_date = datetime(y, m, d)
+        self.expire_date = expire
 
     def use(self) -> str:
         self.used_date = datetime.now()
@@ -108,34 +114,3 @@ class Wishlist(Timestamp, Base):
     played_before: Mapped[bool]
     hltb_total: Mapped[timedelta]
     hltb_story: Mapped[timedelta]
-
-
-def add_bundle(session: Session, name: str, prc: float, currency: str, games: list[dict[str, tuple[str, datetime]]]):
-    TODAY = datetime.now()
-    NOW = TODAY.date()
-    if "Choice" in name:
-        year = int(name.split(" ")[-1])
-        month = getattr(calendar.Month, name.split(" ")[-2].upper()).value
-        monthcal = CALENDAR.monthdatescalendar(year, month)
-        date = [day for week in monthcal for day in week if day.weekday() == calendar.TUESDAY and day.month == month][
-            -1
-        ]
-    elif "Monthly" in name:
-        year = int(name.split(" ")[1])
-        month = getattr(calendar.Month, name.split(" ")[0].upper()).value
-        monthcal = CALENDAR.monthdatescalendar(year, month)
-        date = [day for week in monthcal for day in week if day.weekday() == calendar.FRIDAY and day.month == month][-1]
-    else:
-        date = NOW
-    bundle = Bundle(
-        name=name,
-        price=prc,
-        currency=currency,
-        keys=[Key(game_id=k, platform=v[0], expire=v[1]) for k, v in games.items()] if (type(games) is dict) else games,
-        date=date,
-    )
-    session.add(bundle)
-    session.commit()
-    print(
-        f"Added bundle {bundle.name} with games {', '.join(game.name for game in bundle.games)} ({len(bundle.games)}) for {bundle.price} {bundle.currency} bought on {bundle.date}."
-    )
