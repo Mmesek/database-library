@@ -1,4 +1,3 @@
-import calendar
 from datetime import datetime, timedelta
 
 from mlib.database import ID, Base, Default as Name, Timestamp
