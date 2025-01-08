@@ -2,17 +2,28 @@ from datetime import datetime
 from typing import Optional
 from decimal import Decimal
 
-from sqlmodel import SQLModel, Field
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey
+
+# from sqlmodel import SQLModel, Field
 
 
-class ID(SQLModel):
+def Field(foreign_key=None, **kwargs):
+    return mapped_column(ForeignKey(foreign_key) if foreign_key else None, **kwargs)
+
+
+class SQLModel:
+    pass
+
+
+class ID:
     # 0
-    id: int = Field(default=None, primary_key=True)
+    id: Mapped[int] = Field(default=None, primary_key=True)
 
 
 class Name(ID, SQLModel):
     # 0 | Something
-    name: str
+    name: Mapped[str]
 
 
 class URL(SQLModel):
@@ -34,8 +45,8 @@ class Timeframe(SQLModel):
 
 
 class Price(SQLModel):
-    price: Decimal
-    currency: str
+    price: Mapped[Decimal]
+    currency: Mapped[str]
 
 
 class Category(SQLModel):
