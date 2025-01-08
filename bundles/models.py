@@ -1,39 +1,16 @@
 import calendar
-
 from datetime import datetime, timedelta
-from decimal import Decimal
 
-from sqlalchemy.orm import Mapped, relationship as Relationship
+from mlib.database import ID, Base, Default as Name, Timestamp
+from sqlalchemy import select
+from sqlalchemy.orm import Mapped, relationship as Relationship, Session
 
-from mlib.database import ID, Default as Name, Timestamp, Base, Field
+from utils.mixins import Price as MixinPrice, Field
 
-# from ..utils.mixins import Price as MixinPrice
-# from ..games.models import Game
-
-TODAY = datetime.now()
-NOW = TODAY.date()
-
-MONTHS = {
-    "January": 1,
-    "February": 2,
-    "March": 3,
-    "April": 4,
-    "May": 5,
-    "June": 6,
-    "July": 7,
-    "August": 8,
-    "September": 9,
-    "October": 10,
-    "November": 11,
-    "December": 12,
-}
-
-c = calendar.Calendar(firstweekday=calendar.SUNDAY)
+# from games.models import Game
 
 
-class MixinPrice:
-    price: Mapped[Decimal]
-    currency: Mapped[str]
+CALENDAR = calendar.Calendar(firstweekday=calendar.SUNDAY)
 
 
 class Game(Name, Base):
@@ -133,18 +110,20 @@ class Wishlist(Timestamp, Base):
     hltb_story: Mapped[timedelta]
 
 
-def add_bundle(session, name, prc, currency, games):
+def add_bundle(session: Session, name: str, prc: float, currency: str, games: list[dict[str, tuple[str, datetime]]]):
+    TODAY = datetime.now()
+    NOW = TODAY.date()
     if "Choice" in name:
         year = int(name.split(" ")[-1])
-        month = MONTHS.get(name.split(" ")[-2])
-        monthcal = c.monthdatescalendar(year, month)
+        month = getattr(calendar.Month, name.split(" ")[-2].upper()).value
+        monthcal = CALENDAR.monthdatescalendar(year, month)
         date = [day for week in monthcal for day in week if day.weekday() == calendar.TUESDAY and day.month == month][
             -1
         ]
     elif "Monthly" in name:
         year = int(name.split(" ")[1])
-        month = MONTHS.get(name.split(" ")[0])
-        monthcal = c.monthdatescalendar(year, month)
+        month = getattr(calendar.Month, name.split(" ")[0].upper()).value
+        monthcal = CALENDAR.monthdatescalendar(year, month)
         date = [day for week in monthcal for day in week if day.weekday() == calendar.FRIDAY and day.month == month][-1]
     else:
         date = NOW
