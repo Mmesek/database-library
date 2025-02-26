@@ -1,0 +1,62 @@
+{
+    "Coinbase": {
+        "start": 4,
+        "fieldnames": 3,
+        "timestamp": "KEY:Timestamp",
+        "exchange": "STRING:COINBASE",
+        "category": "STRING:CRYPTO",
+        "buying": {
+            "TYPE": "LAMBDA",
+            "KEY": "Transaction Type",
+            "LAMBDA": "'buy' in value"
+        },
+        "asset": "KEY:Asset",
+        "quantity": "KEY:Quantity Transacted",
+        "price": "KEY:Price at Transaction",
+        "currency": "KEY:Price Currency",
+        "note": "KEY:Notes\n",
+        "fee": "KEY:Fees and/or Spread",
+        "total": "KEY:Total (inclusive of fees and/or spread)",
+        "subtotal": "KEY:Subtotal"
+    },
+    "Revolut": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Date",
+        "exchange": "STRING:REVOLUT",
+        "category": "STRING:CRYPTO",
+        "buying": {
+            "TYPE": "LAMBDA",
+            "KEY": "Type",
+            "LAMBDA": "'kupno' in value"
+        },
+        "asset": "KEY:Symbol",
+        "quantity": "KEY:Quantity",
+        "price": "KEY:Price",
+        "currency": "FUNC:currency:Price",
+        "note": "STRING:",
+        "fee": "KEY:Fees",
+        "total": "KEY:Value",
+        "subtotal": "KEY:Value"
+    },
+    "Revolut X": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Date",
+        "exchange": "STRING:REVOLUT",
+        "category": "STRING:CRYPTO",
+        "buying": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": [ "buy", "receive" ]
+        },
+        "asset": "KEY:Symbol",
+        "quantity": "KEY:Quantity",
+        "price": "KEY:Price",
+        "currency": "FUNC:currency:Price",
+        "note": "STRING:",
+        "fee": "KEY:Fees",
+        "total": "KEY:Value",
+        "subtotal": "KEY:Value"
+    }
+}
