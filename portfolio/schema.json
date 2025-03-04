@@ -2,19 +2,40 @@
     "Coinbase": {
         "start": 4,
         "fieldnames": 3,
+        "id": "KEY:ID",
         "timestamp": "KEY:Timestamp",
         "exchange": "STRING:COINBASE",
         "category": "STRING:CRYPTO",
-        "buying": {
-            "TYPE": "LAMBDA",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Notes",
+            "ANY": {
+                "BUY": ["buy", "kupno", "bought"],
+                "SELL": ["sell", "sold"],
+                "REWARD": ["income", "reward", "nagroda"],
+                "DEPOSIT": ["deposit"],
+                "WITHDRAW": ["withdraw"],
+                "EXTERNAL TRANSFER": ["external"],
+                "TRANSFER": ["sent", "receive", "send"],
+                "CONVERT": ["convert"],
+                "DEFAULT": "REWARD"
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
             "KEY": "Transaction Type",
-            "LAMBDA": "'buy' in value"
+            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Transaction Type",
+            "ANY": ["buy", "sell", "convert", "advanced"]
         },
         "asset": "KEY:Asset",
         "quantity": "KEY:Quantity Transacted",
         "price": "KEY:Price at Transaction",
         "currency": "KEY:Price Currency",
-        "note": "KEY:Notes\n",
+        "note": "KEY:Notes",
         "fee": "KEY:Fees and/or Spread",
         "total": "KEY:Total (inclusive of fees and/or spread)",
         "subtotal": "KEY:Subtotal"
@@ -25,10 +46,30 @@
         "timestamp": "FUNC:date:Date",
         "exchange": "STRING:REVOLUT",
         "category": "STRING:CRYPTO",
-        "buying": {
-            "TYPE": "LAMBDA",
+        "type": {
+            "TYPE": "ANY",
             "KEY": "Type",
-            "LAMBDA": "'kupno' in value"
+            "ANY": {
+                "BUY": ["buy", "kupno", "bought"],
+                "SELL": ["sell", "sold"],
+                "REWARD": ["income", "reward", "nagroda"],
+                "DEPOSIT": ["deposit"],
+                "WITHDRAW": ["withdraw"],
+                "EXTERNAL TRANSFER": ["external"],
+                "TRANSFER": ["sent", "receive", "send"],
+                "CONVERT": ["convert"],
+                "DEFAULT": "REWARD"
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": ["buy", "sell", "convert", "advanced"]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
@@ -45,10 +86,30 @@
         "timestamp": "FUNC:date:Date",
         "exchange": "STRING:REVOLUT",
         "category": "STRING:CRYPTO",
-        "buying": {
+        "type": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": [ "buy", "receive" ]
+            "ANY": {
+                "BUY": ["buy", "kupno", "bought"],
+                "SELL": ["sell", "sold"],
+                "REWARD": ["income", "reward", "nagroda"],
+                "DEPOSIT": ["deposit"],
+                "WITHDRAW": ["withdraw"],
+                "EXTERNAL TRANSFER": ["external"],
+                "TRANSFER": ["sent", "receive", "send"],
+                "CONVERT": ["convert"],
+                "DEFAULT": "REWARD"
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": ["buy", "sell", "convert", "advanced"]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
