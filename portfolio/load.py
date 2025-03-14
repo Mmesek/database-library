@@ -1,11 +1,37 @@
+from calendar import month_abbr
 import dateparser
+import pytz
+from decimal import Decimal
 
 from portfolio.models import Transaction
 from portfolio.loaders.helpers import save, load_statement
 from portfolio.loaders.utils import currency, number, NOTE
 
-FUNCTIONS = {"currency": currency, "date": dateparser.parse}
 
+MONTH_ABBR_TRANSLATINS = {
+    "sty": month_abbr[1],
+    "lut": month_abbr[2],
+    "mar": month_abbr[3],
+    "kwi": month_abbr[4],
+    "maj": month_abbr[5],
+    "cze": month_abbr[6],
+    "lip": month_abbr[7],
+    "sie": month_abbr[8],
+    "wrz": month_abbr[9],
+    "paź": month_abbr[10],
+    "lis": month_abbr[11],
+    "gru": month_abbr[12],
+}
+
+def parse_date(ds: str):
+    for key, translation in MONTH_ABBR_TRANSLATINS.items():
+        ds = ds.replace(key, translation)
+    dt = dateparser.parse(ds)
+    if not dt.tzinfo:
+        dt = dt.astimezone(pytz.timezone("Europe/Warsaw"))
+    return dt
+
+FUNCTIONS = {"currency": currency, "date": parse_date}
 
 class Parser:
     def __init__(self, row: dict[str, str], schema: dict[str, str]):
