@@ -23,6 +23,7 @@ MONTH_ABBR_TRANSLATINS = {
     "gru": month_abbr[12],
 }
 
+
 def parse_date(ds: str):
     for key, translation in MONTH_ABBR_TRANSLATINS.items():
         ds = ds.replace(key, translation)
@@ -31,7 +32,9 @@ def parse_date(ds: str):
         dt = dt.astimezone(pytz.timezone("Europe/Warsaw"))
     return dt
 
+
 FUNCTIONS = {"currency": currency, "date": parse_date}
+
 
 class Parser:
     def __init__(self, row: dict[str, str], schema: dict[str, str]):
@@ -73,11 +76,10 @@ class Parser:
                 return FUNCTIONS[f](self.row[v])
 
     def __getitem__(self, id):
-        return self.t[id]
+        return self.t.get(id)
 
 
-if __name__ == "__main__":
-    rows, schema = load_statement(True)
+def parse(rows, schema):
     transactions: list[Transaction] = []
     for row in rows:
         d = Parser(row, schema)
@@ -101,8 +103,10 @@ if __name__ == "__main__":
             fee=number(d["fee"]),
             note=d["note"],
         )
-        if any(i in d["note"].lower() for i in ["buy", "kupno", "withdraw", "sent"]):
+        if any(i in d["note"].lower() for i in ["withdraw", "sent", "send", "wychodzący"]):
             t.total = -abs(t.total)
+        if d["type"] == "STAKING":
+            t.total = Decimal()
 
         transactions.append(t)
         if d["trade"]:
@@ -113,6 +117,15 @@ if __name__ == "__main__":
                 tc = t.convert(match.group("dest_asset"), number(match.group("dest_quantity")), number(d["fee"]))
 
             if d["buy"]:
-                transactions.insert(-1 , tc)
+                transactions.insert(-1, tc)
             else:
                 transactions.append(tc)
+    return transactions
+
+
+if __name__ == "__main__":
+    t = []
+    t += parse(*load_statement(True))
+    t += parse(*load_statement(False))
+    t += parse(*load_statement(False, x=True))
+    save(t)
