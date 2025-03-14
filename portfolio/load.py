@@ -46,17 +46,17 @@ class Parser:
     def parse_dict(self, locator: dict[str, str | dict | list[str]]) -> bool:
         match locator["TYPE"]:
             case "ANY":
-                value = self.row[locator["KEY"]]
+                value = self.row[locator["KEY"]].lower()
                 if type(locator["ANY"]) is dict:
                     for k, v in locator["ANY"].items():
                         if type(v) is not list or k == "DEFAULT":
                             continue
-                        if any(i.lower() in value.lower() for i in v):
+                        if any(i.lower() in value for i in v):
                             return k
                     else:
                         return locator["ANY"]["DEFAULT"]
                 else:
-                    return any(i.lower() in value.lower() for i in locator["ANY"])
+                    return any(i.lower() in value for i in locator["ANY"])
 
     def parse_str(self, locator: str) -> str:
         _type, value = locator.split(":", 1)
