@@ -63,6 +63,9 @@ class Parser:
         match _type:
             case "KEY":
                 return self.row[value].replace(",", ".")
+            case "SUB":
+                a, b = value.split(",", 1)
+                return str(number(self.row[a]) - number(self.row[b]))
             case "STRING":
                 return value
             case "FUNC":
