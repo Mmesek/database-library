@@ -107,7 +107,12 @@ if __name__ == "__main__":
         transactions.append(t)
         if d["trade"]:
             match = NOTE.match(t.note)
-            transactions.insert(
-                -1, t.convert(match.group("dest_asset"), number(match.group("dest_quantity")), number(d["fee"]))
-            )
-    save(transactions)
+            if not match:
+                tc = t.convert(d["currency"], value, number(d["fee"]))
+            else:
+                tc = t.convert(match.group("dest_asset"), number(match.group("dest_quantity")), number(d["fee"]))
+
+            if d["buy"]:
+                transactions.insert(-1 , tc)
+            else:
+                transactions.append(tc)
