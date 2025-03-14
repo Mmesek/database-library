@@ -3,7 +3,7 @@
         "start": 4,
         "fieldnames": 3,
         "id": "KEY:ID",
-        "timestamp": "KEY:Timestamp",
+        "timestamp": "FUNC:date:Timestamp",
         "exchange": "STRING:COINBASE",
         "category": "STRING:CRYPTO",
         "type": {
@@ -18,6 +18,7 @@
                 "EXTERNAL TRANSFER": ["external"],
                 "TRANSFER": ["sent", "receive", "send"],
                 "CONVERT": ["convert"],
+                "PERPETUAL": ["funding", "settlements"],
                 "DEFAULT": "REWARD"
             }
         },
@@ -51,73 +52,80 @@
             "KEY": "Type",
             "ANY": {
                 "BUY": ["buy", "kupno", "bought"],
-                "SELL": ["sell", "sold"],
+                "SELL": ["sell", "sold", "sprzedaż"],
                 "REWARD": ["income", "reward", "nagroda"],
                 "DEPOSIT": ["deposit"],
                 "WITHDRAW": ["withdraw"],
                 "EXTERNAL TRANSFER": ["external"],
-                "TRANSFER": ["sent", "receive", "send"],
+                "TRANSFER": ["sent", "receive", "send", "przelew", "wychodzący", "przychodzący"],
                 "CONVERT": ["convert"],
+                "STAKING": ["staking"],
                 "DEFAULT": "REWARD"
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie"]
+        },
+        "outgoing": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": ["buy", "kupno", "withdraw", "sent", "send", "bought"]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "sell", "convert", "advanced"]
+            "ANY": ["buy", "sell", "convert", "advanced", "kupno", "sprzedaż"]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
         "price": "KEY:Price",
         "currency": "FUNC:currency:Price",
-        "note": "STRING:",
+        "note": "KEY:Type",
         "fee": "KEY:Fees",
         "total": "KEY:Value",
-        "subtotal": "KEY:Value"
+        "subtotal": "SUB:Value,Fees"
     },
     "Revolut X": {
         "start": 1,
         "fieldnames": 0,
         "timestamp": "FUNC:date:Date",
-        "exchange": "STRING:REVOLUT",
+        "exchange": "STRING:REVOLUT X",
         "category": "STRING:CRYPTO",
         "type": {
             "TYPE": "ANY",
             "KEY": "Type",
             "ANY": {
                 "BUY": ["buy", "kupno", "bought"],
-                "SELL": ["sell", "sold"],
+                "SELL": ["sell", "sold", "sprzedaż"],
                 "REWARD": ["income", "reward", "nagroda"],
                 "DEPOSIT": ["deposit"],
                 "WITHDRAW": ["withdraw"],
                 "EXTERNAL TRANSFER": ["external"],
-                "TRANSFER": ["sent", "receive", "send"],
+                "TRANSFER": ["sent", "receive", "send", "przelew", "wychodzący", "przychodzący"],
                 "CONVERT": ["convert"],
+                "STAKING": ["staking"],
                 "DEFAULT": "REWARD"
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie"]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "sell", "convert", "advanced"]
+            "ANY": ["buy", "sell", "convert", "advanced", "kupno", "sprzedaż"]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
         "price": "KEY:Price",
         "currency": "FUNC:currency:Price",
-        "note": "STRING:",
+        "note": "KEY:Type",
         "fee": "KEY:Fees",
         "total": "KEY:Value",
-        "subtotal": "KEY:Value"
+        "subtotal": "SUB:Value,Fees"
     }
 }
