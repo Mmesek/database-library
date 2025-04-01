@@ -1,1 +1,14 @@
+sqlalchemy
+dateparser
+lxml
 sqlmodel
+pytz
+requests
+bs4
+httpx
+howlongtobeatpy
+python-fasthtml
+fastsql
+psycopg-binary
+psycopg
+python-dotenv
