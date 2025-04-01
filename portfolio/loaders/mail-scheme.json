@@ -1,0 +1,9 @@
+{
+    "Data ostatniego wypełnienia": "timestamp",
+    "Rynek": "asset",
+    "Rodzaj": "type",
+    "Cena": "price",
+    "Kwota": "amount",
+    "Wartość nominalna": "value",
+    "Opłata": "fee"
+}
