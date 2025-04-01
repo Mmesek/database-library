@@ -4,7 +4,14 @@
         "fieldnames": 3,
         "id": "KEY:ID",
         "timestamp": "FUNC:date:Timestamp",
-        "exchange": "STRING:COINBASE",
+        "exchange": {
+            "TYPE": "ANY",
+            "KEY": "Notes",
+            "ANY": {
+                "COINBASE PERPETUALS": ["perp", "funding fee"],
+                "DEFAULT": "COINBASE"
+            }
+        },
         "category": "STRING:CRYPTO",
         "type": {
             "TYPE": "ANY",
