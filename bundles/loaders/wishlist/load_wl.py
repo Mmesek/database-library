@@ -22,11 +22,21 @@ ORDER BY SIMILARITY(name, lower(:name_1)) DESC
             {"name_1": line},
         ).first()
         if not game:
-            session.add(Game(name=line, id=None, keys=[]))
+            session.add(Game(name=line, keys=[]))
         if game:
             stmt = select(Wishlist).where(Wishlist.game_id == game.id)
             wl_game = session.execute(stmt).scalar()
             if not wl_game:
-                session.add(Wishlist(game_id=game[1], timestamp=None, interest_scale=1, played_before=False))
+                print("Adding", game[0])
+                session.add(
+                    Wishlist(
+                        game_id=game[1],
+                        timestamp=None,
+                        interest_scale=1,
+                        played_before=False,
+                        hltb_story=None,
+                        hltb_total=None,
+                    )
+                )
 
 session.commit()
