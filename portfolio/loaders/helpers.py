@@ -8,12 +8,13 @@ def load_statement(file: str, x=False):
     PATH = "data/statements/"
     if "coinbase" in file:
         SCHEMA = "Coinbase"
-        FILE = PATH + file
+    elif "cdp" in file:
+        SCHEMA = "Coinbase Pro"
     else:
         SCHEMA = "Revolut"
         if x:
             SCHEMA += " X"
-        FILE = PATH + file
+    FILE = PATH + file
     FILE += ".csv"
 
     with open("portfolio/schema.json") as file:

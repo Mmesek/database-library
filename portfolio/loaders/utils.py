@@ -14,6 +14,18 @@ def currency(value: str) -> str:
     return clean(value, currency=True)
 
 
+def pair(value: str) -> str:
+    if "PERP-INTX" in value:
+        return value.replace("-INTX", "")
+    return value.split("-", 1)[0].replace("-INTX", "")
+
+
+def asset_pair(value: str) -> str:
+    if "PERP-INTX" in value:
+        return "USDC"
+    return value.split("-", 1)[1].replace("-INTX", "")
+
+
 VALUE = re.compile(r"-?\W?(\d*(?:\.|,|\w)?(?:\d*)?\.?\d*?) ?(.*)?")
 NOTE = re.compile(
     r"(?P<type>Bought|Sold|Converted) (?P<src>\d+\.?\d+) (?P<asset>.*)"
@@ -30,7 +42,7 @@ def clean(value: str, currency: bool = False) -> str:
         return 0
     v = value.replace("\xa0", "")
     r = VALUE.findall(v)
-    return r[0][currency].replace(",",".")
+    return r[0][currency].replace(",", ".")
 
 
 def number(value: str) -> Decimal:

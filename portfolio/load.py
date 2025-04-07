@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from portfolio.models import Transaction
 from portfolio.loaders.helpers import save, load_statement
-from portfolio.loaders.utils import currency, number, NOTE
+from portfolio.loaders.utils import asset_pair, currency, number, NOTE, pair
 
 
 MONTH_ABBR_TRANSLATINS = {
@@ -33,7 +33,7 @@ def parse_date(ds: str):
     return dt
 
 
-FUNCTIONS = {"currency": currency, "date": parse_date}
+FUNCTIONS = {"currency": currency, "date": parse_date, "pair": pair, "asset_pair": asset_pair}
 
 
 class Parser:
@@ -68,7 +68,13 @@ class Parser:
                 return self.row[value].replace(",", ".")
             case "SUB":
                 a, b = value.split(",", 1)
-                return str(number(self.row[a]) - number(self.row[b]))
+                return str(number(self.row.get(a, self.t.get(a))) - number(self.row[b]))
+            case "MUL_OR_DIV":
+                a, b, c = value.split(",", 2)
+                if c == "False":
+                    return str(number(self.row[a]) * number(self.row[b]))
+                else:
+                    return f"{number(self.row[b]) / number(self.row[a]):<.16f}"
             case "STRING":
                 return value
             case "FUNC":
@@ -101,8 +107,13 @@ def parse(rows, schema):
             total=value,
             value=total,
             fee=number(d["fee"]),
-            note=d["note"],
+            note="LIQUIDATION" if d["note"] == "UNKNOWN_LIQUIDITY_INDICATOR" else d["note"],
         )
+        try:
+            prc = Decimal(d["price"])
+            t.price = prc
+        except Exception:
+            pass
         if any(i in d["note"].lower() for i in ["withdraw", "sent", "send", "wychodzący"]):
             t.total = -abs(t.total)
         if d["type"] == "STAKING":

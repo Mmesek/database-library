@@ -48,6 +48,40 @@
         "total": "KEY:Total (inclusive of fees and/or spread)",
         "subtotal": "KEY:Subtotal"
     },
+    "Coinbase Pro": {
+        "start": 1,
+        "fieldnames": 0,
+        "id": "KEY:entry_id",
+        "timestamp": "FUNC:date:trade_time",
+        "exchange": "STRING:Coinbase Advanced",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": {
+                "BUY": ["buy"],
+                "SELL": ["sell"]
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": ["buy"]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": ["buy", "sell"]
+        },
+        "asset": "FUNC:pair:product_id",
+        "quantity": "KEY:size",
+        "price": "KEY:price",
+        "currency": "FUNC:asset_pair:product_id",
+        "note": "KEY:liquidity_indicator",
+        "fee": "KEY:commission",
+        "total": "MUL_OR_DIV:price,size,size_in_quote",
+        "subtotal": "SUB:total,commission"
+    },
     "Revolut": {
         "start": 1,
         "fieldnames": 0,
