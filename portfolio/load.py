@@ -71,7 +71,7 @@ class Parser:
                 return str(number(self.row.get(a, self.t.get(a))) - number(self.row[b]))
             case "MUL_OR_DIV":
                 a, b, c = value.split(",", 2)
-                if c == "False":
+                if self.row[c] == "False":
                     return str(number(self.row[a]) * number(self.row[b]))
                 else:
                     return f"{number(self.row[b]) / number(self.row[a]):<.16f}"
