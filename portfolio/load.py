@@ -1,4 +1,5 @@
 from calendar import month_abbr
+from datetime import UTC, datetime
 import dateparser
 import pytz
 from decimal import Decimal
@@ -30,6 +31,7 @@ def parse_date(ds: str):
     dt = dateparser.parse(ds)
     if not dt.tzinfo:
         dt = dt.astimezone(pytz.timezone("Europe/Warsaw"))
+    dt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, tzinfo=dt.tzinfo)
     return dt
 
 
