@@ -108,3 +108,16 @@ class Transaction(Timestamp, ID, Base):
                self.rate_currency else ""),
             self.quantity,
         )
+
+
+def test_transaction():
+    t = Transaction("TEST", "TEST", "BUY", "TEST", 10, "TEST2", total=100, value=100, fee="0")
+    assert t.total == Decimal(-100)
+    t2 = t.convert("TEST2", 100, 0)
+    print(t)
+    print(t2)
+
+    assert t2.total == -t.total
+    assert t2.quantity == t.total
+
+
