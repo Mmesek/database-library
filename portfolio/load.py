@@ -1,4 +1,5 @@
 from calendar import month_abbr
+from collections import defaultdict
 from datetime import UTC, datetime
 import dateparser
 import pytz
@@ -89,6 +90,7 @@ class Parser:
 
 def parse(rows, schema):
     transactions: list[Transaction] = []
+    seen = defaultdict(lambda: list())
     for row in rows:
         d = Parser(row, schema)
         quantity = abs(number(d["quantity"]))
@@ -111,6 +113,9 @@ def parse(rows, schema):
             fee=number(d["fee"]),
             note="LIQUIDATION" if d["note"] == "UNKNOWN_LIQUIDITY_INDICATOR" else d["note"],
         )
+        if t.type == "TRANSFER":
+            seen[t.timestamp].append(t)
+
         try:
             prc = Decimal(d["price"])
             t.price = prc
@@ -135,6 +140,14 @@ def parse(rows, schema):
                 transactions.insert(-1, tc)
             else:
                 transactions.append(tc)
+    for ts in seen:
+        note = seen[ts][0].note
+        if len(seen[ts]) > 1 or (" to " not in note or " from " not in note):
+            for t in seen[ts]:
+                t.type = "SELL"
+                t.note = "LIQUIDATION"
+                t.exchange = "COINBASE Advanced"
+
     return transactions
 
 
