@@ -162,14 +162,15 @@ def parse(rows, schema):
                 transactions.append(tc)
     for ts in seen:
         note = seen[ts][0].note
-        if len(seen[ts]) > 1 or (" to " not in note and " from " not in note):
-            for t in seen[ts]:
-                t.type = "SELL"
-                if not t.note:
-                    t.note = ""
-                t.note += " LIQUIDATION"
-                t.note.strip()
-                t.exchange = "COINBASE Advanced"
+        for t in seen[ts]:
+            if " to " in note or " from " in note:
+                break
+            t.type = "SELL"
+            if not t.note:
+                t.note = ""
+            t.note += " LIQUIDATION"
+            t.note.strip()
+            t.exchange = "COINBASE Advanced"
 
     return transactions
 
