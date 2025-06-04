@@ -127,6 +127,9 @@ def parse(rows, schema):
             t.total = Decimal()
 
         transactions.append(t)
+        if t.note == "LIQUIDATION":  # No convertion on Liquidation - we lost
+            continue
+
         if d["trade"] or (("DEPOSIT" in t.type or "WITHDRAW" in t.type) and "perp" in t.exchange.lower()):
             match = NOTE.match(t.note)
             if not match:
@@ -159,10 +162,13 @@ def parse(rows, schema):
                 transactions.append(tc)
     for ts in seen:
         note = seen[ts][0].note
-        if len(seen[ts]) > 1 or (" to " not in note or " from " not in note):
+        if len(seen[ts]) > 1 or (" to " not in note and " from " not in note):
             for t in seen[ts]:
                 t.type = "SELL"
-                t.note = "LIQUIDATION"
+                if not t.note:
+                    t.note = ""
+                t.note += " LIQUIDATION"
+                t.note.strip()
                 t.exchange = "COINBASE Advanced"
 
     return transactions
