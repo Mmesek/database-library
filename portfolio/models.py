@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column as Column
 
 from mlib.database import ID, Timestamp, Base
 
+
 # Operation,  Asset, Quantity, Price, Currency,    Net,   Tar, Brutto
 #   Deposit,    EUR,      300,     1,      EUR,    300,     0,    300
 #       Buy,    BTC,        2,   100,      EUR,    199,     1,   -200
@@ -13,6 +14,8 @@ from mlib.database import ID, Timestamp, Base
 #               BTC,        1,   100,      EUR,     99,     1,     99
 #               AKT,        3,  0.53,      EUR,    1.6,     0,      0
 #               EUR,      200,     1,      EUR,    200,     0,    200
+def to_decimal(value):
+    return Decimal(value.replace(",", "") if type(value) is str else value)
 
 
 class Transaction(Timestamp, ID, Base):
@@ -33,7 +36,7 @@ class Transaction(Timestamp, ID, Base):
     """Currency which applies it's rate"""
     note: Mapped[str | None] = Column(default=None, nullable=True)
     """Transaction note"""
-    price: Mapped[Decimal] = Column(default=Decimal())
+    price: Mapped[Decimal] = Column(default=Decimal(), nullable=True)
     """Price per 1 asset"""
     rate: Mapped[Decimal] = Column(default=Decimal(1))
     """Exchange rate to rate_currency applicable for this transaction"""
@@ -41,25 +44,28 @@ class Transaction(Timestamp, ID, Base):
     """Fee of this transaction"""
     value: Mapped[Decimal] = Column(default=Decimal())
     """Value of this transaction. Without fee for Buy orders, with for sell orders"""
-    total: Mapped[Decimal] = Column(
-        default=Decimal())  # Should we rename it to change?
+    total: Mapped[Decimal] = Column(default=Decimal())  # Should we rename it to change?
     """Balance change, including fees for Buy orders"""
     external_id: Mapped[str] = Column(default=None, nullable=True)
 
     def __post_init__(self):
         if type(self.total) is not Decimal:
-            self.total = Decimal(self.total.replace(",", ""))
+            self.total = to_decimal(self.total)
         if type(self.quantity) is not Decimal:
-            self.quantity = Decimal(self.quantity.replace(",", ""))
+            self.quantity = to_decimal(self.quantity)
         if type(self.fee) is not Decimal:
-            self.fee = Decimal(self.fee.replace(",", ""))
+            self.fee = to_decimal(self.fee)
+
         if not self.price and self.quantity:
-            self.price = Decimal(
-                (abs(self.total) - self.fee) / abs(self.quantity))
+            self.price = to_decimal((abs(self.total) - self.fee) / abs(self.quantity))
         if type(self.price) is not Decimal:
-            self.price = Decimal(self.price.replace(",", ""))
+            self.price = to_decimal(self.price)
         if not self.fee:
             self.fee = Decimal()
+        if self.quantity < 0:
+            self.total = abs(self.total)
+        else:
+            self.total = -self.total
 
     @property
     def cost(self):
@@ -104,8 +110,7 @@ class Transaction(Timestamp, ID, Base):
             self.timestamp,
             " BUY" if self.buying else "SELL",
             f"{self.asset:>8} {abs(self.total):>6.4} {self.currency}"
-            + (f" -> {abs(self.converted):>6.4} {self.rate_currency}" if self.currency !=
-               self.rate_currency else ""),
+            + (f" -> {abs(self.converted):>6.4} {self.rate_currency}" if self.currency != self.rate_currency else ""),
             self.quantity,
         )
 
@@ -121,3 +126,4 @@ def test_transaction():
     assert t2.quantity == t.total
 
 
+# test_transaction()
