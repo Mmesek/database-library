@@ -17,11 +17,12 @@
             "TYPE": "ANY",
             "KEY": "Notes",
             "ANY": {
+                "ADV": ["advanced"],
                 "BUY": ["buy", "kupno", "bought"],
                 "SELL": ["sell", "sold"],
                 "REWARD": ["income", "reward", "nagroda"],
                 "DEPOSIT": ["deposit"],
-                "WITHDRAW": ["withdraw"],
+                "WITHDRAW": ["withdraw", "withdrew"],
                 "EXTERNAL TRANSFER": ["external"],
                 "TRANSFER": ["sent", "receive", "send"],
                 "CONVERT": ["convert"],

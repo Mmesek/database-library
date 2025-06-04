@@ -121,20 +121,37 @@ def parse(rows, schema):
             t.price = prc
         except Exception:
             pass
-        if any(i in d["note"].lower() for i in ["withdraw", "sent", "send", "wychodzący"]):
+        if any(i in d["note"].lower() for i in ["withdraw", "sent", "sold", "send", "wychodzący", "withdrew"]):
             t.total = -abs(t.total)
         if d["type"] == "STAKING":
             t.total = Decimal()
 
         transactions.append(t)
-        if d["trade"]:
+        if d["trade"] or (("DEPOSIT" in t.type or "WITHDRAW" in t.type) and "perp" in t.exchange.lower()):
             match = NOTE.match(t.note)
             if not match:
                 tc = t.convert(d["currency"], value, number(d["fee"]))
             else:
-                tc = t.convert(match.group("dest_asset"), number(match.group("dest_quantity")), number(d["fee"]))
+                price = number(match.group("rate"))
+                quantity = number(match.group("src"))
+                if quantity != abs(t.quantity):
+                    if t.quantity < 0:
+                        t.quantity = -quantity
+                    else:
+                        t.quantity = quantity
+                total = price * quantity
+                if not t.fee:
+                    value = total - t.fee if d["buy"] else total + t.fee
+                tc = t.convert(
+                    match.group("dest_asset"), total or number(match.group("dest_quantity")), number(d["fee"])
+                )
             if not tc.quantity:
                 continue
+
+            if ("DEPOSIT" in t.type or "WITHDRAW" in t.type) and "perp" in t.exchange.lower():
+                tc.exchange = "COINBASE"
+                tc.asset = t.asset
+                tc.quantity = -t.quantity
 
             if d["buy"]:
                 transactions.insert(-1, tc)
