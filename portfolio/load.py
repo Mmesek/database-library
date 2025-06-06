@@ -1,99 +1,57 @@
-from calendar import month_abbr
 from collections import defaultdict
 from datetime import UTC, datetime
 
 from portfolio.models import Transaction
 from portfolio.loaders.helpers import save, load_statement
+from portfolio.loaders.schema import Schema
+from portfolio.loaders.parser import Parser
+import tqdm
+
+
 def fix_transfers(seen: dict[datetime, list[Transaction]]):
+    for ts in tqdm.tqdm(seen, unit="tx", desc="Fixing transfer transactions"):
+        note = seen[ts][0].note
+        for t in seen[ts]:
+            if any(i in note for i in [" to ", " from "]):
+                break
+            if "USDCs" in t.note and len(seen[ts]) == 1:
+                t.type = "BORROW"
+                t.note = t.note.replace(" LIQUIDATION", "")
+
+
+def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = list):
     transactions: list[Transaction] = []
-    seen = defaultdict(lambda: list())
-    for row in rows:
-        d = Parser(row, schema)
-        quantity = abs(number(d["quantity"]))
-        total = number(d["total"])
-        value = number(d["subtotal"])
-        if abs(value) > abs(total):
-            total, value = value, total
+    seen: dict[datetime, list[Transaction]] = defaultdict(lambda: list())
+    for row in tqdm.tqdm(rows, unit="tx", desc="Parsing transactions"):
+        d = Schema(**Parser(row, schema).t)
+        t = d.to_transaction()
 
-        t = Transaction(
-            type=d["type"],
-            external_id=d["id"],
-            timestamp=d["timestamp"],
-            exchange=d["exchange"],
-            category=d["category"],
-            asset=d["asset"],
-            currency=d["currency"],
-            quantity=quantity if d["buy"] else -quantity,
-            total=value,
-            value=total,
-            fee=number(d["fee"]),
-            note="LIQUIDATION" if d["note"] == "UNKNOWN_LIQUIDITY_INDICATOR" else d["note"],
-        )
-        if t.type == "TRANSFER":
-            seen[t.timestamp].append(t)
-
-        try:
-            prc = Decimal(d["price"])
-            t.price = prc
-        except Exception:
-            pass
-        if any(i in d["note"].lower() for i in ["withdraw", "sent", "sold", "send", "wychodzący", "withdrew"]):
-            t.total = -abs(t.total)
-        if d["type"] == "STAKING":
-            t.total = Decimal()
-
-        transactions.append(t)
-        if t.note == "LIQUIDATION":  # No convertion on Liquidation - we lost
+        if skip_dupes:
+            if any(t.timestamp == i.timestamp for i in ledger):
+                continue
+        if "Advanced" in t.exchange and t.timestamp < datetime(2025, 6, 1, tzinfo=UTC) and t.note != "LIQUIDATION":
             continue
 
-        if d["trade"] or (("DEPOSIT" in t.type or "WITHDRAW" in t.type) and "perp" in t.exchange.lower()):
-            match = NOTE.match(t.note)
-            if not match:
-                tc = t.convert(d["currency"], value, number(d["fee"]))
-            else:
-                price = number(match.group("rate"))
-                quantity = number(match.group("src"))
-                if quantity != abs(t.quantity):
-                    if t.quantity < 0:
-                        t.quantity = -quantity
-                    else:
-                        t.quantity = quantity
-                total = price * quantity
-                if not t.fee:
-                    value = total - t.fee if d["buy"] else total + t.fee
-                tc = t.convert(
-                    match.group("dest_asset"), total or number(match.group("dest_quantity")), number(d["fee"])
-                )
-            if not tc.quantity:
-                continue
+        if "LIQUIDATION" in t.note:
+            seen[t.timestamp].append(t)
+        transactions.append(t)
 
-            if ("DEPOSIT" in t.type or "WITHDRAW" in t.type) and "perp" in t.exchange.lower():
-                tc.exchange = "COINBASE"
-                tc.asset = t.asset
-                tc.quantity = -t.quantity
-
-            if d["buy"]:
+        if tc := d.should_convert(t, d.trade):
+            if d.buy:
                 transactions.insert(-1, tc)
             else:
                 transactions.append(tc)
-    for ts in seen:
-        note = seen[ts][0].note
-        for t in seen[ts]:
-            if " to " in note or " from " in note:
-                break
-            t.type = "SELL"
-            if not t.note:
-                t.note = ""
-            t.note += " LIQUIDATION"
-            t.note.strip()
-            t.exchange = "COINBASE Advanced"
+    fix_transfers(seen)
 
     return transactions
 
 
 if __name__ == "__main__":
     t = []
-    t += parse(*load_statement(True))
-    t += parse(*load_statement(False))
-    t += parse(*load_statement(False, x=True))
+    # t += parse(*load_statement("coinbase/coinbase_2024"))
+    t += parse(*load_statement("coinbase/coinbase_2024-20250531"))
+    # t += parse(*load_statement("cdp/cdp_spot"), skip_dupes=True, ledger=t)
+    # t += parse(*load_statement("cdp/cdp_perp"), skip_dupes=True, ledger=t)
+    # t += parse(*load_statement("revolut/crypto-account-statement_2024-08-12_2025-03-14_pl-pl_d1b997"))
+    # t += parse(*load_statement("revolut/revx-account-statement_2024-07-28_2025-03-14_pl-pl_b0e83c", x=True))
     save(t)
