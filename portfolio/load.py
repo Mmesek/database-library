@@ -19,9 +19,14 @@ def fix_transfers(seen: dict[datetime, list[Transaction]]):
                 t.note = t.note.replace(" LIQUIDATION", "")
 
 
-def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = list):
+ROUND_PRECISION = 8
+MATCH_WINDOW = 3
+
+
+def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = None, api: bool = False):
     transactions: list[Transaction] = []
     seen: dict[datetime, list[Transaction]] = defaultdict(lambda: list())
+    skips = 0
     for row in tqdm.tqdm(rows, unit="tx", desc="Parsing transactions"):
         d = Schema(**Parser(row, schema).t)
         if api:
@@ -30,11 +35,21 @@ def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = list):
 
         t = d.to_transaction()
 
-        if skip_dupes:
-            if any(t.timestamp == i.timestamp for i in ledger):
+        if skip_dupes and ledger:
+            q = round(t.quantity, ROUND_PRECISION)
+            for _t in ledger:
+                if (
+                    abs(t.timestamp - _t.timestamp) < timedelta(seconds=MATCH_WINDOW)
+                    and t.asset == _t.asset
+                    and q == round(_t.quantity, ROUND_PRECISION)
+                ):
+                    dupe = True
+                    break
+            else:
+                dupe = False
+            if dupe:
+                skips += 1
                 continue
-        if "Advanced" in t.exchange and t.timestamp < datetime(2025, 6, 1, tzinfo=UTC) and t.note != "LIQUIDATION":
-            continue
 
         if "LIQUIDATION" in t.note:
             seen[t.timestamp].append(t)
@@ -46,6 +61,7 @@ def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = list):
             else:
                 transactions.append(tc)
     fix_transfers(seen)
+    print("Added", len(rows) - skips, "/", len(rows))
 
     return transactions
 
