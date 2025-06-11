@@ -24,6 +24,10 @@ def parse(rows, schema, skip_dupes=False, ledger: list[Transaction] = list):
     seen: dict[datetime, list[Transaction]] = defaultdict(lambda: list())
     for row in tqdm.tqdm(rows, unit="tx", desc="Parsing transactions"):
         d = Schema(**Parser(row, schema).t)
+        if api:
+            d.is_api = True
+            d.exchange = api
+
         t = d.to_transaction()
 
         if skip_dupes:

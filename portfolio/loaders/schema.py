@@ -22,6 +22,7 @@ class Schema:
     fee: Decimal
     total: Decimal
     subtotal: Decimal
+    is_api: bool = False
 
     def __post_init__(self):
         if isinstance(self.timestamp, str):
@@ -74,6 +75,8 @@ class Schema:
             value=self.subtotal,
             fee=self.fee,
             note=self.note,
+            price=self.price,
+            is_api=self.is_api,
         )
 
     def convert(self, asset: str, quantity: Decimal, price: str = None, currency: str = None):
@@ -93,6 +96,7 @@ class Schema:
             self.fee,
             -self.total,
             self.subtotal,
+            is_api=self.is_api,
         )
 
     def handle_conversion(self, transaction: Transaction):

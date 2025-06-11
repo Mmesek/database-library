@@ -47,6 +47,7 @@ class Transaction(Timestamp, ID, Base):
     total: Mapped[Decimal] = Column(default=Decimal())  # Should we rename it to change?
     """Balance change, including fees for Buy orders"""
     external_id: Mapped[str] = Column(default=None, nullable=True)
+    is_api: Mapped[bool] = Column(default=False)
 
     def __post_init__(self):
         if type(self.total) is not Decimal:
@@ -60,6 +61,8 @@ class Transaction(Timestamp, ID, Base):
             self.price = to_decimal((abs(self.total) - self.fee) / abs(self.quantity))
         if type(self.price) is not Decimal:
             self.price = to_decimal(self.price)
+        if self.price == Decimal(1):
+            self.price = None
         if not self.fee:
             self.fee = Decimal()
         if self.quantity < 0:
