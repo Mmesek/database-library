@@ -4,6 +4,8 @@ from datetime import datetime
 from portfolio.loaders.utils import parse_date, number, NOTE
 from portfolio.models import Transaction
 
+OUTGOING = ["withdraw", "sent", "sold", "send", "wychodzący", "withdrew", "debited"]
+
 
 @dataclass
 class Schema:
@@ -43,9 +45,7 @@ class Schema:
 
         self.price = number(self.price)
 
-        if any(
-            i in self.note.lower() for i in ["withdraw", "sent", "sold", "send", "wychodzący", "withdrew", "debited"]
-        ):
+        if any(i in self.note.lower() for i in OUTGOING):
             self.total = -abs(self.total)
         if self.type == "STAKING":
             self.total = Decimal()
