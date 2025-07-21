@@ -2,8 +2,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship as Relationship, mapped_column as Field
 from mlib.database import ID, Timestamp, Base
 from datetime import datetime
-
-Base.metadata.schema = "Forms"
+from uuid import UUID
 
 
 class Meta(ID):
@@ -58,7 +57,7 @@ class Question_Options(ID, Base):
 class Response(Timestamp, ID, Base):
     """Response to a question"""
 
-    user_id: Mapped[int]
+    user_id: Mapped[UUID]
     """User that responded to this question"""
     question_id: Mapped[int] = Field(ForeignKey("Question.id"))
     """Question being responded to"""
