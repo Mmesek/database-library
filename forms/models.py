@@ -15,9 +15,8 @@ class Meta(ID):
 class Form(Meta, Base):
     """Form metadata"""
 
-    # questions: Mapped[list["Question"]] = Relationship(secondary="Form_Questions", default_factory=list)
-
-    # question: "Question" = Relationship(back_populates="answers", default=None)
+    questions: list["Question"] = Relationship(secondary="Form_Questions", default_factory=list)
+    """Questions this form has"""
 
 
 class Form_Questions(Base):
@@ -27,6 +26,8 @@ class Form_Questions(Base):
     """Form this question is associated with"""
     question_id: Mapped[int] = Field(ForeignKey("Question.id"), primary_key=True)
     """Associated Question"""
+    order: Mapped[int] = Field(default=False)
+    """Order in which to display this question in a form"""
     required: Mapped[bool] = Field(default=False)
     """Whether this question is mandatory in this form"""
 
@@ -34,15 +35,17 @@ class Form_Questions(Base):
 class Question(Meta, Base):
     """Question data"""
 
-    # answers: list["Answer"] = Relationship(back_populates="question", default_factory=list)
     type: Mapped[str] = Field(default=None, nullable=False)
-    """Type of this question, for example Text, Select or Choice"""
-    allow_multiple_answer: Mapped[bool] = Field(default=False)
-    """Whether to allow multiple answers for this question"""
-    min_length: Mapped[int | None] = Field(nullable=True, default=None)
-    """Min length of the answer for Text type"""
-    max_length: Mapped[int | None] = Field(nullable=True, default=None)
-    """Max length of the answer for Text type"""
+    """Type of this question. For example Text, Select or Choice"""
+    min: Mapped[int | None] = Field(nullable=True, default=None)
+    """Min value or length of the answer"""
+    max: Mapped[int | None] = Field(nullable=True, default=None)
+    """Max value or length of the answer"""
+    default: Mapped[str | None] = Field(nullable=True, default=None)
+    """Value used as a default value or a placeholder"""
+
+    answers: list["Answer"] = Relationship(default_factory=list)
+    """Answers provided to this question"""
 
 
 class Question_Options(ID, Base):
