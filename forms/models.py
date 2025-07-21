@@ -12,14 +12,14 @@ class Meta(ID):
     """Optional description for this field"""
 
 
-class Form(Meta, Base):
+class Form(Meta, Base, schema="forms"):
     """Form metadata"""
 
     questions: list["Question"] = Relationship(secondary="Form_Questions", default_factory=list)
     """Questions this form has"""
 
 
-class Form_Questions(Base):
+class Form_Questions(Base, schema="forms"):
     """Association of questions to a specific form"""
 
     form_id: Mapped[int] = Field(ForeignKey("Form.id"), primary_key=True)
@@ -32,7 +32,7 @@ class Form_Questions(Base):
     """Whether this question is mandatory in this form"""
 
 
-class Question(Meta, Base):
+class Question(Meta, Base, schema="forms"):
     """Question data"""
 
     type: Mapped[str] = Field(default=None, nullable=False)
@@ -48,7 +48,7 @@ class Question(Meta, Base):
     """Answers provided to this question"""
 
 
-class Question_Options(ID, Base):
+class Question_Options(ID, Base, schema="forms"):
     """Options available on this question"""
 
     question_id: Mapped[int] = Field(ForeignKey("Question.id"))
@@ -57,7 +57,7 @@ class Question_Options(ID, Base):
     """Value of this option"""
 
 
-class Response(Timestamp, ID, Base):
+class Response(Timestamp, ID, Base, schema="forms"):
     """Response to a question"""
 
     user_id: Mapped[UUID]
@@ -68,7 +68,7 @@ class Response(Timestamp, ID, Base):
     """Form this response is for"""
 
 
-class Answer(ID, Base):
+class Answer(ID, Base, schema="forms"):
     """(Possibly many) Answers associated with a Response to a question"""
 
     response_id: Mapped[int] = Field(ForeignKey("Response.id"))
