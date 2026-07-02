@@ -12,6 +12,9 @@ class Parser:
                 self.t[key] = self.parse_dict(locator)
             elif type(locator) is str:
                 self.t[key] = self.parse_str(locator)
+        for arg in list(self.t.keys()):
+            if arg.startswith("x-"):
+                self.t.pop(arg)
 
     def parse_dict(self, locator: dict[str, str | dict | list[str]]) -> bool:
         match locator["TYPE"]:
@@ -35,7 +38,12 @@ class Parser:
                 return self.row[value].replace(",", ".")
             case "SUB":
                 a, b = value.split(",", 1)
-                return str(number(self.row.get(a, self.t.get(a))) - number(self.row[b]))
+                if "," in b:
+                    b1, b2 = b.split(",", 1)
+                    b = number(self.row[b1]) + number(self.row[b2])
+                else:
+                    b = number(self.row[b])
+                return str(number(self.row.get(a, self.t.get(a))) - b)
             case "MUL_OR_DIV":
                 a, b, c = value.split(",", 2)
                 if self.row[c] == "False":

@@ -10,10 +10,23 @@ def load_statement(file: str, x=False):
         SCHEMA = "Coinbase"
     elif "cdp" in file:
         SCHEMA = "Coinbase Pro"
-    else:
+    elif "revolut" in file:
         SCHEMA = "Revolut"
         if x:
             SCHEMA += " X"
+    elif "binance" in file:
+        SCHEMA = "Binance"
+        if "Spot" in file:
+            SCHEMA += " Spot"
+        elif "Withdraw" in file:
+            SCHEMA += " Withdrawal"
+    elif "kanga" in file:
+        SCHEMA = "Kanga"
+        if "deposits" in file:
+            SCHEMA += " Deposit"
+    elif "bybit" in file:
+        SCHEMA = "Bybit"
+
     FILE = PATH + file
     FILE += ".csv"
 
@@ -24,7 +37,7 @@ def load_statement(file: str, x=False):
 
     with open(FILE) as file:
         lines = file.readlines()
-        fields = [i.strip() for i in lines[schema["fieldnames"]].split(",")]
+        fields = [i.strip().replace("\ufeff", "") for i in lines[schema["fieldnames"]].split(",")]
         rows = [row for row in csv.DictReader(lines[schema["start"] :], fields)]
     return rows, schema
 
@@ -37,7 +50,7 @@ def save(transactions: list[Transaction]):
 
 def save_to_db(transactions: list[Transaction]):
     from utils.db import make_session
-
+        fields = [i.strip().replace("\ufeff", "") for i in lines[schema["fieldnames"]].split(",")]
     session = make_session("Portfolio", start_fresh=True)
     # from sqlalchemy import insert
     # stmt = insert(Transaction).values(transactions)

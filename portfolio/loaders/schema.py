@@ -9,21 +9,21 @@ OUTGOING = ["withdraw", "sent", "sold", "send", "wychodzący", "withdrew", "debi
 
 @dataclass
 class Schema:
-    id: str
     timestamp: datetime
     exchange: str
     category: str
     type: str
-    buy: bool
-    trade: bool
     asset: str
     quantity: Decimal
     price: Decimal
     currency: str
-    note: str
     fee: Decimal
     total: Decimal
     subtotal: Decimal
+    id: str = ""
+    note: str = ""
+    buy: bool = False
+    trade: bool = False
     is_api: bool = False
 
     def __post_init__(self):
@@ -50,10 +50,20 @@ class Schema:
         if self.type == "STAKING":
             self.total = Decimal()
 
+        if not self.currency:
+            self.currency = self.asset
+
         if "/" in self.currency:
             self.currency = self.currency.replace(self.asset, "").replace("/", "")
 
-        if self.type == "TRANSFER" and all(i not in self.note for i in [" to ", " from "]):
+        self.currency = self.currency.replace("°", "")
+        self.asset = self.asset.replace("°", "")
+
+        if (
+            self.exchange == "COINBASE"
+            and self.type == "TRANSFER"
+            and all(i not in self.note for i in [" to ", " from "])
+        ):
             self.exchange = "COINBASE PERPETUALS"
             self.type = "SELL"
             if not self.note:

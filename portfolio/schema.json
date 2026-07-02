@@ -8,7 +8,7 @@
             "TYPE": "ANY",
             "KEY": "Notes",
             "ANY": {
-                "COINBASE PERPETUALS": ["perp", "funding fee"],
+                "COINBASE PERPETUALS": [ "perp", "funding fee" ],
                 "DEFAULT": "COINBASE"
             }
         },
@@ -17,28 +17,28 @@
             "TYPE": "ANY",
             "KEY": "Notes",
             "ANY": {
-                "ADV": ["advanced"],
-                "BUY": ["buy", "kupno", "bought"],
-                "SELL": ["sell", "sold"],
-                "REWARD": ["income", "reward", "nagroda"],
-                "DEPOSIT": ["deposit"],
-                "WITHDRAW": ["withdraw", "withdrew"],
-                "EXTERNAL TRANSFER": ["external"],
-                "TRANSFER": ["sent", "receive", "send"],
-                "CONVERT": ["convert"],
-                "PERPETUAL": ["funding", "settlements"],
+                "BUY": [ "buy", "kupno", "bought" ],
+                "SELL": [ "sell", "sold" ],
+                "REWARD": [ "income", "reward", "nagroda", "promotions" ],
+                "ADV": [ "advanced" ],
+                "DEPOSIT": [ "deposit" ],
+                "WITHDRAW": [ "withdraw", "withdrew" ],
+                "EXTERNAL TRANSFER": [ "external" ],
+                "TRANSFER": [ "sent", "receive", "send" ],
+                "CONVERT": [ "convert" ],
+                "PERPETUAL": [ "funding", "settlement" ],
                 "DEFAULT": "REWARD"
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "Transaction Type",
-            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno"]
+            "ANY": [ "buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "credited" ]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "Transaction Type",
-            "ANY": ["buy", "sell", "convert", "advanced"]
+            "ANY": [ "buy", "sell", "convert", "advanced" ]
         },
         "asset": "KEY:Asset",
         "quantity": "KEY:Quantity Transacted",
@@ -54,25 +54,25 @@
         "fieldnames": 0,
         "id": "KEY:entry_id",
         "timestamp": "FUNC:date:trade_time",
-        "exchange": "STRING:Coinbase Advanced",
+        "exchange": "STRING:COINBASE Advanced",
         "category": "STRING:CRYPTO",
         "type": {
             "TYPE": "ANY",
             "KEY": "side",
             "ANY": {
-                "BUY": ["buy"],
-                "SELL": ["sell"]
+                "BUY": [ "buy" ],
+                "SELL": [ "sell" ]
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "side",
-            "ANY": ["buy"]
+            "ANY": [ "buy" ]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "side",
-            "ANY": ["buy", "sell"]
+            "ANY": [ "buy", "sell" ]
         },
         "asset": "FUNC:pair:product_id",
         "quantity": "KEY:size",
@@ -81,7 +81,8 @@
         "note": "KEY:liquidity_indicator",
         "fee": "KEY:commission",
         "total": "MUL_OR_DIV:price,size,size_in_quote",
-        "subtotal": "SUB:total,commission"
+        "subtotal": "SUB:total,commission",
+        "x-size_in_quote": "KEY:size_in_quote"
     },
     "Revolut": {
         "start": 1,
@@ -93,32 +94,32 @@
             "TYPE": "ANY",
             "KEY": "Type",
             "ANY": {
-                "BUY": ["buy", "kupno", "bought"],
-                "SELL": ["sell", "sold", "sprzedaż"],
-                "REWARD": ["income", "reward", "nagroda"],
-                "DEPOSIT": ["deposit"],
-                "WITHDRAW": ["withdraw"],
-                "EXTERNAL TRANSFER": ["external"],
-                "TRANSFER": ["sent", "receive", "send", "przelew", "wychodzący", "przychodzący"],
-                "CONVERT": ["convert"],
-                "STAKING": ["staking"],
+                "BUY": [ "buy", "kupno", "bought" ],
+                "SELL": [ "sell", "sold", "sprzedaż" ],
+                "REWARD": [ "income", "reward", "nagroda" ],
+                "DEPOSIT": [ "deposit" ],
+                "WITHDRAW": [ "withdraw" ],
+                "EXTERNAL TRANSFER": [ "external" ],
+                "TRANSFER": [ "sent", "receive", "send", "przelew", "wychodzący", "przychodzący" ],
+                "CONVERT": [ "convert" ],
+                "STAKING": [ "staking" ],
                 "DEFAULT": "REWARD"
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie"]
+            "ANY": [ "buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie" ]
         },
         "outgoing": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "kupno", "withdraw", "sent", "send", "bought"]
+            "ANY": [ "buy", "kupno", "withdraw", "sent", "send", "bought" ]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "sell", "convert", "advanced", "kupno", "sprzedaż"]
+            "ANY": [ "buy", "sell", "convert", "advanced", "kupno", "sprzedaż" ]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
@@ -139,27 +140,27 @@
             "TYPE": "ANY",
             "KEY": "Type",
             "ANY": {
-                "BUY": ["buy", "kupno", "bought"],
-                "SELL": ["sell", "sold", "sprzedaż"],
-                "REWARD": ["income", "reward", "nagroda"],
-                "DEPOSIT": ["deposit"],
-                "WITHDRAW": ["withdraw"],
-                "EXTERNAL TRANSFER": ["external"],
-                "TRANSFER": ["sent", "receive", "send", "przelew", "wychodzący", "przychodzący"],
-                "CONVERT": ["convert"],
-                "STAKING": ["staking"],
+                "BUY": [ "buy", "kupno", "bought" ],
+                "SELL": [ "sell", "sold", "sprzedaż" ],
+                "REWARD": [ "income", "reward", "nagroda" ],
+                "DEPOSIT": [ "deposit" ],
+                "WITHDRAW": [ "withdraw" ],
+                "EXTERNAL TRANSFER": [ "external" ],
+                "TRANSFER": [ "sent", "receive", "send", "przelew", "wychodzący", "przychodzący" ],
+                "CONVERT": [ "convert" ],
+                "STAKING": [ "staking" ],
                 "DEFAULT": "REWARD"
             }
         },
         "buy": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie"]
+            "ANY": [ "buy", "receive", "income", "reward", "deposit", "nagroda", "kupno", "przychodzący", "wycofanie" ]
         },
         "trade": {
             "TYPE": "ANY",
             "KEY": "Type",
-            "ANY": ["buy", "sell", "convert", "advanced", "kupno", "sprzedaż"]
+            "ANY": [ "buy", "sell", "convert", "advanced", "kupno", "sprzedaż" ]
         },
         "asset": "KEY:Symbol",
         "quantity": "KEY:Quantity",
@@ -169,5 +170,187 @@
         "fee": "KEY:Fees",
         "total": "KEY:Value",
         "subtotal": "SUB:Value,Fees"
+    },
+    "Kanga": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Date",
+        "exchange": "STRING:Kanga",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": { "BUY": [ "Buyer" ], "SELL": [ "Seller", "seller" ] }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": { "BUY": [ "Buyer" ], "SELL": [ "Seller", "seller" ] }
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": [ "buy", "sell" ]
+        },
+        "asset": "FUNC:pair:Pair",
+        "quantity": "KEY:Quantity",
+        "price": "KEY:Price",
+        "currency": "FUNC:asset_pair:Pair",
+        "fee": "KEY:Fee",
+        "total": "KEY:Total",
+        "subtotal": "SUB:Total,Fee"
+    },
+    "Kanga Deposit": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Date",
+        "exchange": "STRING:Kanga",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": {
+                "DEPOSIT": [ "Deposit" ],
+                "WITHDRAW": [ "Outgoing transfer" ]
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Type",
+            "ANY": [ "Deposit" ]
+        },
+        "asset": "KEY:Currency",
+        "quantity": "KEY:Amount",
+        "price": "KEY:Amount",
+        "currency": "KEY:Currency",
+        "note": "KEY:Status",
+        "total": "KEY:Amount",
+        "fee": "STRING:0",
+        "subtotal": "KEY:Amount"
+    },
+    "Bybit": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Timestamp (UTC)",
+        "exchange": "STRING:Bybit",
+        "category": "STRING:CRYPTO",
+        "id": "KEY:Transaction ID",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": { "BUY": [ "BUY" ], "SELL": [ "SELL" ] }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": { "BUY": [ "BUY" ], "SELL": [ "SELL" ] }
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": [ "BUY", "SELL" ]
+        },
+        "asset": "FUNC:pair:Spot Pairs",
+        "currency": "FUNC:asset_pair:Spot Pairs",
+        "quantity": "KEY:Filled Quantity",
+        "price": "KEY:Filled Price",
+        "note": "KEY:Order No.",
+        "fee": "KEY:Fees",
+        "total": "KEY:Filled Value",
+        "subtotal": "SUB:Total,Fees"
+    },
+    "Binance": {
+        "start": 1,
+        "fieldnames": 0,
+        "id": "KEY:Order Number",
+        "timestamp": "FUNC:date:Created Time",
+        "exchange": "STRING:Binance",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Order Type",
+            "ANY": {
+                "BUY": [ "BUY", "buy" ],
+                "SELL": [ "SELL", "sell" ],
+                "DEFAULT": "BUY"
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Order Type",
+            "ANY": [ "BUY", "buy" ]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Order Type",
+            "ANY": [ "BUY", "SELL", "buy", "sell" ]
+        },
+        "asset": "KEY:Asset",
+        "quantity": "KEY:Quantity",
+        "price": "KEY:Price",
+        "note": "KEY:Counterparty",
+        "currency": "KEY:Fiat Type",
+        "fee": "ADD:Maker Fee,Taker Fee",
+        "total": "KEY:Total Price",
+        "subtotal": "SUB:Total Price,Maker Fee,Taker Fee",
+        "x-rate": "KEY:Exchange rate",
+        "x-status": "KEY:Status"
+    },
+    "Binance Spot": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Time",
+        "exchange": "STRING:Binance",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": {
+                "BUY": [ "BUY", "buy" ],
+                "SELL": [ "SELL", "sell" ]
+            }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": [ "BUY", "buy" ]
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Side",
+            "ANY": [ "BUY", "SELL", "buy", "sell" ]
+        },
+        "asset": "FUNC:pair:Pair",
+        "quantity": "KEY:Executed",
+        "price": "KEY:Price",
+        "currency": "FUNC:asset_pair:Pair",
+        "fee": "KEY:Fee",
+        "total": "KEY:Amount",
+        "subtotal": "SUB:Amount,Fee"
+    },
+    "Binance Withdrawal": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Time",
+        "exchange": "STRING:Binance",
+        "category": "STRING:CRYPTO",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Status",
+            "ANY": {
+                "WITHDRAW": [ "Success", "Completed" ],
+                "DEFAULT": "WITHDRAW"
+            }
+        },
+        "asset": "KEY:Coin",
+        "quantity": "KEY:Amount",
+        "price": "KEY:Amount",
+        "currency": "KEY:Coin",
+        "id": "KEY:TXID",
+        "note": "KEY:Network",
+        "x-address": "KEY:Address",
+        "fee": "KEY:Fee",
+        "total": "KEY:Amount",
+        "subtotal": "SUB:Amount,Fee"
     }
 }
