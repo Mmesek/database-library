@@ -13,14 +13,8 @@ dotenv.load_dotenv()
 # %% Constants
 
 DATABASE_URL = os.getenv("FIFO_DB")
-QUERY = """
-SELECT id, exchange, timestamp, type, external_id, quantity, asset, price,
-       currency, rate as "NBP-1", fee, value, total, note
-FROM "Transaction"
-WHERE timestamp >= '2026-05-01' AND timestamp < '2026-06-01'
-AND type != 'DEPOSIT' AND type != 'WITHDRAW'
-ORDER BY timestamp ASC
-"""
+with open("scripts/accounting/dea_transactions", newline="", encoding="utf-8") as file:
+    QUERY = file.read()
 OUTPUT_FILE = "fifo.xlsx"
 
 ROW_LEGEND = 1
