@@ -11,9 +11,9 @@ dotenv.load_dotenv()
 # %% Constants
 
 DATABASE_URL = os.getenv("FIFO_DB")
-with open("scripts/accounting/dea_transactions", newline="", encoding="utf-8") as file:
+with open("scripts/accounting/dea_transactions.sql", newline="", encoding="utf-8") as file:
     QUERY = file.read()
-OUTPUT_FILE = "data/statements/Olek/fifo/FIFO_05.2026.xlsx"
+OUTPUT_FILE = "data/statements/Olek/fifo/FIFO_template.xlsx"
 # %%
 ROW_START = 15
 COL_BDATE = 3
