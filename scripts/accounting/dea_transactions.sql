@@ -25,12 +25,13 @@ currency_leg AS (
         t.timestamp,
         CASE
             WHEN LOWER(t.type) = 'buy' THEN 'SELL'
-            ELSE 'BUY'
+            WHEN LOWER(t.type) = 'sell' THEN 'BUY'
+            ELSE t.type
         END as type,
         t.external_id,
         CASE
             WHEN LOWER(t.type) = 'buy' THEN - t.value
-            ELSE t.total
+            ELSE t.value
         END as quantity,
         t.currency as asset,
         CASE
