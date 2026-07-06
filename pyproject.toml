@@ -1,5 +1,5 @@
 [project]
-name = "Database Models"
+name = "Database-Models"
 version = "1"
 authors = [{ name = "Mmesek" }]
 description = "Database library"
