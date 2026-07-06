@@ -56,18 +56,18 @@ def edit_sheet(writer: Workbook, asset_df: pd.DataFrame, asset: str):
             nr = COL_BNUMBER
             qty = COL_BQUANTITY
             val = (
-                f"='FIFO_{tx['currency']}'!{alphabeth[COL_SWORTH - 1]}{int(tx['linked_position'] or 0)}"
-                if tx["reversed"]
+                f"='FIFO_{tx['currency']}'!{alphabeth[COL_SWORTH - 1]}{int(tx['linked_position']) + 14}"
+                if tx["reversed"] and tx["linked_position"]
                 else None
             )
-            ws.cell(row=idx, column=COL_BWORTH, value=val or tx["total"])
+            ws.cell(row=idx, column=COL_BWORTH, value=val or tx["value"])
             ws.cell(row=idx, column=COL_BPRICE, value=f"={alphabeth[COL_BWORTH - 1]}{idx}/{alphabeth[qty - 1]}{idx}")
         else:
             date = COL_SDATE
             nr = COL_SNUMBER
             qty = COL_SQUANTITY
 
-        ws.cell(row=idx, column=date, value=tx["timestamp"].strftime("%Y-%m-%d %H:%M"))
+        ws.cell(row=idx, column=date, value=tx["timestamp"].strftime("%y-%m-%d %H:%M"))
         ws.cell(
             row=idx,
             column=nr,
