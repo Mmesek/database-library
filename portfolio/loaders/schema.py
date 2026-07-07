@@ -56,8 +56,8 @@ class Schema:
         if "/" in self.currency:
             self.currency = self.currency.replace(self.asset, "").replace("/", "")
 
-        self.currency = self.currency.replace("°", "")
-        self.asset = self.asset.replace("°", "")
+        self.currency = self.currency.replace("oPLN", "PLN°").replace("oEUR", "EUR°").replace("oUSD", "USD°")
+        self.asset = self.asset.replace("oPLN", "PLN°").replace("oEUR", "EUR°").replace("oUSD", "USD°")
 
         if (
             self.exchange == "COINBASE"

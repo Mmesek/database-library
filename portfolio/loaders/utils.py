@@ -20,16 +20,16 @@ def currency(value: str) -> str:
 
 def split_pair(pair):
     # Build from your known assets and currencies
-    currencies = {"USDT", "USDC"}
+    currencies = {"USDT", "USDC", "PLN°", "EUR°", "USD°"}
 
     # Try longest match first (greedy from left)
     for stablecoin in sorted(currencies, key=len, reverse=True):
         if pair.endswith(stablecoin):
             asset = pair[: -len(stablecoin)]
             if asset:
-                return asset.replace("°", ""), stablecoin.replace("°", "")
+                return asset, stablecoin
 
-    return pair.replace("°", "")
+    return pair
 
 
 def pair(value: str) -> str:
@@ -40,8 +40,8 @@ def pair(value: str) -> str:
     # if value.startswith("USD"):
     #    return "USD" + value.split("USD")[0]
     if "/" in value:
-        return value.split("/")[0].replace("°", "")
-    return split_pair(value)[0].replace("°", "")
+        return value.split("/")[0]
+    return split_pair(value)[0]
 
 
 def asset_pair(value: str) -> str:
@@ -50,10 +50,10 @@ def asset_pair(value: str) -> str:
     if "-" in value:
         return value.split("-", 1)[1].replace("-INTX", "")
     if "/" in value:
-        return value.split("/")[1].replace("°", "")
+        return value.split("/")[1]
     # if value.startswith("USD"):
     #    return "USD" + value.split("USD", 1)[1]
-    return split_pair(value)[1].replace("°", "")
+    return split_pair(value)[1]
 
 
 VALUE = re.compile(r"-?\W?(\d*(?:\.|,|\w)?(?:\d*)?\.?\d*?) ?(.*)?")
@@ -72,7 +72,7 @@ def clean(value: str, currency: bool = False) -> str:
         return 0
     v = value.replace("\xa0", "")
     r = VALUE.findall(v)
-    return r[0][currency].replace(",", ".").replace("°", "")
+    return r[0][currency].replace(",", ".")
 
 
 def number(value: str) -> Decimal:
