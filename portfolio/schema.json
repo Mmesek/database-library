@@ -174,6 +174,7 @@
     "Kanga": {
         "start": 1,
         "fieldnames": 0,
+        "x-timezone": "STRING:Europe/Warsaw",
         "timestamp": "FUNC:date:Date",
         "exchange": "STRING:Kanga",
         "category": "STRING:CRYPTO",
@@ -203,7 +204,8 @@
     "Kanga XLS": {
         "start": 1,
         "fieldnames": 0,
-        "timestamp": "FUNC:date:Date (UTC)",
+        "x-timezone": "STRING:UTC",
+        "timestamp": "FUNC:date:Data po dodaniu setnych sekund",
         "exchange": "STRING:Kanga",
         "category": "STRING:CRYPTO",
         "id": "KEY:id",

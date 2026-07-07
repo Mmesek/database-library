@@ -7,6 +7,8 @@ class Parser:
     def __init__(self, row: dict[str, str], schema: dict[str, str]):
         self.t = {}
         self.row = row
+        if not self.row:
+            return
         for key, locator in schema.items():
             if type(locator) is dict:
                 self.t[key] = self.parse_dict(locator)
@@ -35,15 +37,18 @@ class Parser:
         _type, value = locator.split(":", 1)
         match _type:
             case "KEY":
-                return self.row[value].replace(",", ".")
+                return self.row.get(value, "").replace(",", ".")
             case "SUB":
                 a, b = value.split(",", 1)
                 if "," in b:
                     b1, b2 = b.split(",", 1)
-                    b = number(self.row[b1]) + number(self.row[b2])
+                    b = number(self.row.get(b1, 0)) + number(self.row.get(b2, 0))
                 else:
-                    b = number(self.row[b])
+                    b = number(self.row.get(b, 0))
                 return str(number(self.row.get(a, self.t.get(a))) - b)
+            case "ADD":
+                a, b = value.split(",", 1)
+                return str(number(self.row.get(a, self.t.get(a))) + number(self.row.get(b, self.t.get(b))))
             case "MUL_OR_DIV":
                 a, b, c = value.split(",", 2)
                 if self.row[c] == "False":
@@ -54,6 +59,8 @@ class Parser:
                 return value
             case "FUNC":
                 f, v = value.split(":", 1)
+                if f == "date":
+                    return FUNCTIONS[f](self.row[v], self.t.get("x-timezone", "Europe/Warsaw"))
                 return FUNCTIONS[f](self.row[v])
 
     def __getitem__(self, id):

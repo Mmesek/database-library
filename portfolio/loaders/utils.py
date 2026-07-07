@@ -100,11 +100,14 @@ MONTH_ABBR_TRANSLATINS = {
 }
 
 
-def parse_date(ds: str):
+def parse_date(ds: str, tz="Europe/Warsaw"):
     for key, translation in MONTH_ABBR_TRANSLATINS.items():
         ds = ds.replace(key, translation)
     dt = dateparser.parse(ds)
     if not dt.tzinfo:
-        dt = dt.astimezone(pytz.timezone("Europe/Warsaw"))
+        if tz == "UTC":
+            dt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond, pytz.UTC)
+        else:
+            dt = dt.astimezone(pytz.timezone(tz))
     # dt = datetime(dt.year, dt.month, dt.day, dt.hour, dt.minute, tzinfo=dt.tzinfo)
     return dt
