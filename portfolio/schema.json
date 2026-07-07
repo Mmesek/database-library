@@ -200,6 +200,37 @@
         "total": "KEY:Total",
         "subtotal": "SUB:Total,Fee"
     },
+    "Kanga XLS": {
+        "start": 1,
+        "fieldnames": 0,
+        "timestamp": "FUNC:date:Date (UTC)",
+        "exchange": "STRING:Kanga",
+        "category": "STRING:CRYPTO",
+        "id": "KEY:id",
+        "note": "KEY:orderId",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": { "BUY": [ "Buyer", "BUYER" ], "SELL": [ "Seller", "seller", "SELLER" ] }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": { "BUY": [ "Buyer", "BUYER" ], "SELL": [ "Seller", "seller", "SELLER" ] }
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "side",
+            "ANY": [ "buy", "sell" ]
+        },
+        "asset": "KEY:buyingCurrency",
+        "quantity": "KEY:Quantity(po prowizji)",
+        "price": "KEY:price",
+        "currency": "KEY:payingCurrency",
+        "fee": "KEY:fee",
+        "total": "KEY:value",
+        "subtotal": "KEY:Value(po prowizji"
+    },
     "Kanga Deposit": {
         "start": 1,
         "fieldnames": 0,
@@ -231,6 +262,7 @@
     "Bybit": {
         "start": 1,
         "fieldnames": 0,
+        "xlsxheader": 3,
         "timestamp": "FUNC:date:Timestamp (UTC)",
         "exchange": "STRING:Bybit",
         "category": "STRING:CRYPTO",
@@ -255,13 +287,48 @@
         "quantity": "KEY:Filled Quantity",
         "price": "KEY:Filled Price",
         "note": "KEY:Order No.",
-        "fee": "KEY:Fees",
+        "fee": "KEY:ExecFeeV2",
         "total": "KEY:Filled Value",
-        "subtotal": "SUB:Total,Fees"
+        "subtotal": "SUB:Filled Value,Fees",
+        "x-fee-coin": "KEY:feeCoin"
+    },
+    "Bybit XLS": {
+        "start": 1,
+        "fieldnames": 0,
+        "xlsxheader": 3,
+        "timestamp": "FUNC:date:Time (UTC+02:00)",
+        "exchange": "STRING:Bybit",
+        "category": "STRING:CRYPTO",
+        "id": "KEY:Order No.",
+        "type": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": { "BUY": [ "BUY" ], "SELL": [ "SELL" ] }
+        },
+        "buy": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": { "BUY": [ "BUY" ], "SELL": [ "SELL" ] }
+        },
+        "trade": {
+            "TYPE": "ANY",
+            "KEY": "Direction",
+            "ANY": [ "BUY", "SELL" ]
+        },
+        "asset": "KEY:Coin Type",
+        "currency": "KEY:Fiat Currency",
+        "quantity": "KEY:Coin Amount",
+        "price": "KEY:Unit Price",
+        "note": "KEY:Counterparty",
+        "fee": "KEY:Transaction Fees",
+        "total": "KEY:Fiat Amount",
+        "subtotal": "SUB:Fiat Amount,Transaction Fees",
+        "x-status": "KEY:Status"
     },
     "Binance": {
         "start": 1,
         "fieldnames": 0,
+        "xlsxheader": 9,
         "id": "KEY:Order Number",
         "timestamp": "FUNC:date:Created Time",
         "exchange": "STRING:Binance",
@@ -299,6 +366,7 @@
     "Binance Spot": {
         "start": 1,
         "fieldnames": 0,
+        "xlsxheader": 9,
         "timestamp": "FUNC:date:Time",
         "exchange": "STRING:Binance",
         "category": "STRING:CRYPTO",
@@ -331,6 +399,7 @@
     "Binance Withdrawal": {
         "start": 1,
         "fieldnames": 0,
+        "xlsxheader": 9,
         "timestamp": "FUNC:date:Time",
         "exchange": "STRING:Binance",
         "category": "STRING:CRYPTO",
