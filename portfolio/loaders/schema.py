@@ -22,6 +22,7 @@ class Schema:
     subtotal: Decimal
     id: str = ""
     note: str = ""
+    fee_in: str = None
     buy: bool = False
     trade: bool = False
     is_api: bool = False
@@ -84,6 +85,7 @@ class Schema:
             total=self.total,
             value=self.subtotal,
             fee=self.fee,
+            fee_in=self.fee_in,
             note=self.note,
             price=self.price,
             is_api=self.is_api,

@@ -18,6 +18,16 @@ def currency(value: str) -> str:
     return clean(value, currency=True)
 
 
+CURRENCY_PATTERN = re.compile(r"[A-Za-z]+")
+
+
+def currency_from_value(value: str) -> str:
+    if r := CURRENCY_PATTERN.match(value):
+        return r.group()
+
+    return clean(value, currency=True)
+
+
 def split_pair(pair):
     # Build from your known assets and currencies
     currencies = {"USDT", "USDC", "PLN°", "EUR°", "USD°"}

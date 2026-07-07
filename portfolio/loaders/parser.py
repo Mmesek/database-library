@@ -1,6 +1,12 @@
-from portfolio.loaders.utils import asset_pair, currency, number, pair, parse_date
+from portfolio.loaders.utils import asset_pair, currency, currency_from_value, number, pair, parse_date
 
-FUNCTIONS = {"currency": currency, "date": parse_date, "pair": pair, "asset_pair": asset_pair}
+FUNCTIONS = {
+    "currency": currency,
+    "from_value": currency_from_value,
+    "date": parse_date,
+    "pair": pair,
+    "asset_pair": asset_pair,
+}
 
 
 class Parser:

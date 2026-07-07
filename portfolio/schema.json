@@ -198,6 +198,7 @@
         "price": "KEY:Price",
         "currency": "FUNC:asset_pair:Pair",
         "fee": "KEY:Fee",
+        "fee_in": "KEY:feeCurrency",
         "total": "KEY:Total",
         "subtotal": "SUB:Total,Fee"
     },
@@ -226,10 +227,11 @@
             "ANY": [ "buy", "sell" ]
         },
         "asset": "KEY:buyingCurrency",
-        "quantity": "KEY:Quantity(po prowizji)",
+        "quantity": "KEY:quantity",
         "price": "KEY:price",
         "currency": "KEY:payingCurrency",
         "fee": "KEY:fee",
+        "fee_in": "KEY:feeCurrency",
         "total": "KEY:value",
         "subtotal": "KEY:Value(po prowizji"
     },
@@ -292,7 +294,7 @@
         "fee": "KEY:ExecFeeV2",
         "total": "KEY:Filled Value",
         "subtotal": "SUB:Filled Value,Fees",
-        "x-fee-coin": "KEY:feeCoin"
+        "fee_in": "KEY:feeCoin"
     },
     "Bybit XLS": {
         "start": 1,
@@ -323,6 +325,7 @@
         "price": "KEY:Unit Price",
         "note": "KEY:Counterparty",
         "fee": "KEY:Transaction Fees",
+        "fee_in": "KEY:Coin Type",
         "total": "KEY:Fiat Amount",
         "subtotal": "SUB:Fiat Amount,Transaction Fees",
         "x-status": "KEY:Status"
@@ -396,7 +399,8 @@
         "currency": "FUNC:asset_pair:Pair",
         "fee": "KEY:Fee",
         "total": "KEY:Amount",
-        "subtotal": "SUB:Amount,Fee"
+        "subtotal": "SUB:Amount,Fee",
+        "fee_in": "FUNC:from_value:Fee"
     },
     "Binance Withdrawal": {
         "start": 1,
