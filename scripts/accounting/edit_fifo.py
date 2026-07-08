@@ -51,16 +51,28 @@ def edit_sheet(writer: Workbook, asset_df: pd.DataFrame, asset: str):
     for _, tx in asset_df.iterrows():
         idx = tx["position"] + ROW_START - 1
         tx["currency"] = tx["currency"].replace(" ", "").replace("°", "o")
+
+        if tx["fee_in"] is None:
+            tx["fee_in"] = tx["asset"] if tx["currency"] in {"PLN", "USD", "EUR"} else tx["currency"]
+        if tx["asset"] == tx["fee_in"]:
+            quantity = tx["quantity"] - tx["fee"]
+            amount = tx["value"]
+        else:
+            quantity = tx["quantity"]
+            amount = tx["value"] - tx["fee"]
+
         if tx["type"].lower() == "buy":
             date = COL_BDATE
             nr = COL_BNUMBER
             qty = COL_BQUANTITY
             val = (
-                f"='FIFO_{tx['currency']}'!{alphabeth[COL_SWORTH - 1]}{int(tx['linked_position']) + 14}"
-                if tx["reversed"] and tx["linked_position"]
+                f"='FIFO_{tx['currency']}'!${alphabeth[COL_SWORTH - 1]}${int(tx['linked_position']) + 14}"
+                if tx["asset"] not in {"USDC", "USDT"}
+                and (tx["reversed"] or tx["currency"] in {"USDC", "USDT"})
+                and tx["linked_position"]
                 else None
             )
-            ws.cell(row=idx, column=COL_BWORTH, value=val or tx["value"])
+            ws.cell(row=idx, column=COL_BWORTH, value=val or amount)
             ws.cell(row=idx, column=COL_BPRICE, value=f"={alphabeth[COL_BWORTH - 1]}{idx}/{alphabeth[qty - 1]}{idx}")
         else:
             date = COL_SDATE
@@ -71,9 +83,10 @@ def edit_sheet(writer: Workbook, asset_df: pd.DataFrame, asset: str):
         ws.cell(
             row=idx,
             column=nr,
-            value=tx["external_id"] or f"Wymiana Spot {tx['asset']}/{tx['currency']} {tx['exchange']}",
+            value=tx["external_id"]
+            or f"Wymiana spot {tx['asset']}/{tx['currency'].replace('°', 'o')} {tx['exchange']}",
         )
-        ws.cell(row=idx, column=qty, value=abs(tx["quantity"]))
+        ws.cell(row=idx, column=qty, value=abs(quantity))
 
     print(f"Created '{sheet_name}' ({len(asset_df)} txns)")
 
